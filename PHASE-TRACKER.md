@@ -4,39 +4,40 @@ This is the authoritative implementation status tracker.
 
 ## Status meanings
 
-- `PLANNED` — future scope only; not currently in the authorized batch.
-- `QUEUED` — architect-authorized for sequential execution after preceding phase verification passes.
+- `PLANNED` — future scope only.
+- `QUEUED` — architect-authorized for sequential execution after preceding gameplay phase passes.
 - `READY` — next phase allowed to start now.
 - `IN_PROGRESS` — implementation has started.
-- `BLOCKED` — a real blocker prevents full completion/verification.
-- `COMPLETE` — implementation agent completed and verified the phase in batch mode; final architect acceptance is pending.
+- `BLOCKED` — a real blocker prevents completion/verification.
+- `COMPLETE` — implementation agent completed and verified the phase; final architect acceptance is pending.
+- `DEFERRED` — intentionally postponed to a later architect roadmap.
 - `ACCEPTED` — architect-approved baseline.
 
 ## Current execution mode
 
-**Sequential batch execution is AUTHORIZED.**
+**GAMEPLAY-FIRST sequential batch is AUTHORIZED.**
 
 Authoritative batch instruction:
 
 `prompts/EXECUTE-CURRENT-ROADMAP.md`
 
-The implementation agent does not stop for architect approval between phases when the current phase verification genuinely passes. Each phase still requires its own scope, verification and focused commit.
+Authentication, durable progress persistence, PWA/offline infrastructure and cloud sync are NOT part of this batch.
 
 ## Roadmap
 
 | Phase | Name | Status | Prompt | Implementation commit | Verification | Notes |
 |---|---|---|---|---|---|---|
 | 0 | Foundation | ACCEPTED | `prompts/PHASE-00-foundation.md` | `1da1983` | PASS | Accepted baseline |
-| 1 | Navigation & Player Entry | READY | `prompts/PHASE-01-navigation.md` | — | — | First phase in current batch |
-| 2 | Shape Bucket Interaction | QUEUED | `prompts/PHASE-02-shape-bucket.md` | — | — | First real gameplay/interaction quality gate |
-| 3 | Brain Engine & Local Progress | QUEUED | `prompts/PHASE-03-brain-engine.md` | — | — | Deterministic scoring + IndexedDB progress |
+| 1 | Navigation & Player Entry | READY | `prompts/PHASE-01-navigation.md` | — | — | First gameplay milestone phase |
+| 2 | Shape Bucket Interaction | QUEUED | `prompts/PHASE-02-shape-bucket.md` | — | — | First real interaction quality gate |
+| 3 | Brain Engine — Session Only | QUEUED | `prompts/PHASE-03-brain-engine.md` | — | — | Adaptive scoring/difficulty; no persistence |
 | 4 | Little Explorer Content | QUEUED | `prompts/PHASE-04-little-explorer.md` | — | — | Expand age 3–5 |
 | 5 | Age-Adaptive Challenge Sets | QUEUED | `prompts/PHASE-05-age-groups.md` | — | — | 6–8, 9–12, 13–17, 18+ |
 | 6 | Knowledge Domains | QUEUED | `prompts/PHASE-06-knowledge-domains.md` | — | — | Maths, nature/science, problem solving, language/literature, history |
-| 7 | Offline Web App / PWA | QUEUED | `prompts/PHASE-07-offline-pwa.md` | — | — | Offline app shell/content; IndexedDB remains progress source |
-| 8 | Vault Run | QUEUED | `prompts/PHASE-08-vault-run.md` | — | — | Multi-puzzle run + final challenge |
-| 9 | Optional Cloud Sync | QUEUED | `prompts/PHASE-09-cloud-sync.md` + batch authorization | — | — | Supabase-first; child cloud activation has privacy/parental-consent gate |
-| 10 | Polish & Release Readiness | QUEUED | `prompts/PHASE-10-polish-release.md` | — | — | Performance, accessibility, motion, release evidence |
+| 7 | Offline Web App / PWA | DEFERRED | `prompts/PHASE-07-offline-pwa.md` | — | — | Decide after gameplay review |
+| 8 | Vault Run | QUEUED | `prompts/PHASE-08-vault-run.md` | — | — | Replayable multi-puzzle run; session state only |
+| 9 | Authentication / Cloud Sync | DEFERRED | `prompts/PHASE-09-cloud-sync.md` | — | — | Decide after gameplay/progress architecture review |
+| 10 | Gameplay Polish | QUEUED | `prompts/PHASE-10-polish-release.md` | — | — | Final gameplay milestone quality pass |
 
 ## Current phase
 
@@ -50,38 +51,48 @@ Commit: `1da1983e673483d709580d0a1cbcaf67f7ef4041`
 
 ## Next allowed work
 
-Execute the current roadmap sequentially using:
+Execute the gameplay milestone sequentially using:
 
 `prompts/EXECUTE-CURRENT-ROADMAP.md`
 
-Start with Phase 1. Do not run phases in parallel.
+Order: **1 → 2 → 3 → 4 → 5 → 6 → 8 → 10**.
+
+Do not execute Phase 7 or Phase 9.
+
+## Current persistence/auth decision
+
+For this milestone:
+- selected age group may persist as a tiny `localStorage` preference;
+- actual brain scores/difficulty/run progress remain in memory for the current session;
+- IndexedDB is deferred;
+- service worker/PWA is deferred;
+- authentication is deferred;
+- cloud/database/sync is deferred.
+
+This is deliberate. First prove that the game is fun, smooth and cognitively useful.
 
 ## Blockers
 
 None currently known.
 
-Phase 9 may encounter external provider/credential/privacy activation blockers. Those must be reported truthfully and must never be converted into a fake PASS.
+## Gameplay batch protocol
 
-## Batch execution protocol
-
-For each phase:
-
+For each executable phase:
 1. Read `AGENTS.md`, `DECISIONS.md`, this tracker, `prompts/EXECUTE-CURRENT-ROADMAP.md`, and the exact phase prompt.
-2. The phase may start when it is `READY`, or when it is `QUEUED` and every required preceding phase is `COMPLETE`/`ACCEPTED` with PASS verification.
-3. Change only the active phase to `IN_PROGRESS`.
-4. Implement only that phase.
-5. Run required verification.
-6. Create a focused implementation commit.
-7. Update that phase to `COMPLETE` with commit SHA and verification result when PASS.
-8. Promote the next queued phase to `IN_PROGRESS` and continue without waiting for a chat approval.
-9. If a real blocker exists, mark it `BLOCKED`, record the exact reason, and continue only with later work that is technically independent.
-10. Never mark your own work `ACCEPTED`.
-11. After the current roadmap batch is finished, return one consolidated report and STOP for architect review.
+2. Change only the active phase to `IN_PROGRESS`.
+3. Implement only that phase.
+4. Run required verification.
+5. Create a focused implementation commit.
+6. Update that phase to `COMPLETE` with commit SHA and verification result when PASS.
+7. Continue to the next executable queued gameplay phase without waiting for chat approval.
+8. Skip `DEFERRED` phases completely.
+9. Never mark your own work `ACCEPTED`.
+10. After Phase 10, return one consolidated gameplay-milestone report and STOP for architect review.
 
 ## Prompt precedence
 
-The batch authorization supersedes only old phase-prompt wording that requires stopping for architect acceptance before the next phase. All phase scope, technical constraints, privacy requirements and verification requirements remain authoritative.
+`prompts/EXECUTE-CURRENT-ROADMAP.md` supersedes earlier batch wording that authorized persistence/PWA/auth/cloud work. Current gameplay phase scope and quality requirements remain authoritative.
 
 ## Prompt revision rule
 
-If a phase requirement changes, the architect updates the relevant prompt or batch authorization and records the change. Do not create `final-v2-final` prompt files. Accepted implementation history is not rewritten; later changes become subsequent work.
+If a phase requirement changes, the architect updates the relevant prompt or batch authorization. Do not create duplicate `final-v2-final` prompt files. Accepted implementation history is not rewritten.
