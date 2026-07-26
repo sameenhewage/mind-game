@@ -1,12 +1,12 @@
-# Phase 03 — Brain Engine and Local Progress
+# Phase 03 — Brain Engine (Session Only)
 
-Status: **PLANNED**
+Status: **QUEUED**
 
 ## Objective
-Introduce the first deterministic cognitive scoring/difficulty model and the real local player-progress store.
+Introduce the first deterministic cognitive scoring/difficulty model needed for gameplay, without building durable progress persistence yet.
 
 ## Cognitive model
-Track game-performance values from 0–100 for:
+Track in-session game-performance values from 0–100 for:
 - memory
 - attention
 - logic
@@ -30,35 +30,37 @@ Do not use machine learning or opaque AI adaptation.
 ## Difficulty
 Difficulty remains integer 1–5.
 - Start from age-group defaults.
-- Adjust gradually from recent results.
+- Adjust gradually from recent results inside the current play session.
 - Never jump multiple levels abruptly.
 - Target the feeling: “I nearly solved that.”
 
-## Local storage architecture
-Introduce native IndexedDB for actual game progress only when the concrete progress model exists in this phase.
+## State scope
+Keep the current brain/difficulty state in memory for the active session/run.
 
-Store only necessary game data, e.g.:
-- profile id/local profile metadata
-- age group reference
-- skill scores
-- current difficulty
-- attempt/result summaries needed for adaptation
-- current/best run state when those fields exist
-- schema/version metadata
+It is acceptable for this state to reset when the page/session is reset during this gameplay milestone.
 
-`localStorage` remains limited to tiny bootstrap/preferences such as selected age group/theme/sound if appropriate.
+`localStorage` remains limited to tiny bootstrap preferences such as selected age group.
 
-Do not add Dexie or another IndexedDB library unless a demonstrated implementation problem justifies it.
+Do NOT implement:
+- IndexedDB
+- durable attempt history
+- cross-device progress
+- cloud sync
+- authentication
+- backend/database
+
+Those belong to the next architecture roadmap after the game is proven.
 
 ## Testing
-This is the first phase where small focused unit tests are justified. Test scoring and difficulty rules, not DOM trivia. Use the smallest suitable test setup only if needed.
+Small focused unit tests are justified for deterministic scoring and difficulty rules if needed. Test the rules, not DOM trivia. Use the smallest suitable setup and avoid unnecessary infrastructure.
 
 ## Out of scope
+- Persistent player profiles/progress.
 - Cloud sync/authentication.
 - Leaderboards.
-- PWA cache/offline app shell (later phase).
+- PWA/offline infrastructure.
 - Complex analytics.
 - Medical/cognitive claims.
 
-## Gate
-Do not execute until Phase 2 is ACCEPTED and this prompt is promoted to READY by the architect. Finish executed work at `REVIEW` and STOP.
+## Completion
+When executed in the current gameplay batch, verify the rules, create a focused Phase 3 commit, mark the phase `COMPLETE`, and continue to the next queued gameplay phase.
