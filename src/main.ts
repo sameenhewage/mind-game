@@ -1,8 +1,9 @@
 import './styles.css';
 
-import { shapeSort } from './content/little-explorer';
+import { shapeSortCard } from './content/little-explorer';
+import { createBrain, type Brain } from './game/brain';
 import { readAgeGroup, writeAgeGroup } from './game/prefs';
-import type { AttemptResult } from './game/puzzle';
+import type { AttemptResult, PuzzleCard } from './game/puzzle';
 import { ageGroupInfo, type AgeGroup } from './game/types';
 import { renderAgeSelect } from './ui/age-select';
 import { renderGameScreen } from './ui/game-screen';
@@ -18,11 +19,23 @@ if (!root) {
 
 const host = createScreenHost(root);
 
-/** The only persisted value. Everything else is session state. */
+/** The age group is the only persisted value; the brain lives for this session. */
 let ageGroup: AgeGroup | null = readAgeGroup();
+let brain: Brain | null = ageGroup ? createBrain(ageGroup) : null;
+let chamberNumber = 0;
 
 function themeFor(group: AgeGroup | null): string | undefined {
   return group ? ageGroupInfo(group).theme : undefined;
+}
+
+/** Choosing a different mode starts a fresh session, since the ladder differs. */
+function useAgeGroup(group: AgeGroup): Brain {
+  if (ageGroup !== group || !brain) {
+    ageGroup = group;
+    brain = createBrain(group);
+    chamberNumber = 0;
+  }
+  return brain;
 }
 
 function showAgeSelect(): void {
@@ -33,7 +46,6 @@ function showAgeSelect(): void {
     element: renderAgeSelect({
       current: ageGroup,
       onSelect: (selected) => {
-        ageGroup = selected;
         writeAgeGroup(selected);
         showHome(selected);
       },
@@ -43,11 +55,13 @@ function showAgeSelect(): void {
 }
 
 function showHome(group: AgeGroup): void {
+  const active = useAgeGroup(group);
   host.show({
     screen: 'home',
     theme: themeFor(group),
     element: renderHome({
       ageGroup: group,
+      brain: active,
       onStartRun: () => showGame(group),
       onChangeAge: showAgeSelect,
     }),
@@ -55,12 +69,16 @@ function showHome(group: AgeGroup): void {
 }
 
 function showGame(group: AgeGroup): void {
+  const active = useAgeGroup(group);
+  const card = shapeSortCard(active.difficulty);
+  chamberNumber += 1;
+
   const view = renderGameScreen({
     ageGroup: group,
-    title: 'Chamber 1',
-    mount: shapeSort(['circle', 'triangle', 'square']),
+    title: `Chamber ${chamberNumber}`,
+    mount: card.mount,
     onExit: () => showHome(group),
-    onDone: (result) => showResults(group, result),
+    onDone: (result) => showResults(group, card, result),
   });
 
   host.show({
@@ -71,12 +89,22 @@ function showGame(group: AgeGroup): void {
   });
 }
 
-function showResults(group: AgeGroup, result: AttemptResult): void {
+function showResults(group: AgeGroup, card: PuzzleCard, result: AttemptResult): void {
+  const active = useAgeGroup(group);
+  const outcome = active.record(result, {
+    difficulty: card.difficulty,
+    skills: card.skills,
+    parMs: card.parMs,
+  });
+
   host.show({
     screen: 'results',
     theme: themeFor(group),
     element: renderResults({
+      card,
       result,
+      outcome,
+      skills: active.skills,
       onAgain: () => showGame(group),
       onHome: () => showHome(group),
     }),

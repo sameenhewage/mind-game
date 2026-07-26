@@ -1,5 +1,38 @@
 /** Contract every puzzle mechanic implements. Kept deliberately small. */
 
+import type { Difficulty, SkillWeights } from './brain';
+
+/** `core` is pure cognitive work with no subject attached. */
+export type KnowledgeDomain =
+  | 'core'
+  | 'maths'
+  | 'nature'
+  | 'problem-solving'
+  | 'language'
+  | 'history';
+
+export const DOMAIN_LABEL: Record<KnowledgeDomain, string> = {
+  core: 'Focus',
+  maths: 'Numbers',
+  nature: 'Nature',
+  'problem-solving': 'Problem Solving',
+  language: 'Words',
+  history: 'History',
+};
+
+/** One playable puzzle, already built for a specific difficulty. */
+export interface PuzzleCard {
+  id: string;
+  /** Short chamber subtitle, e.g. "Shape sort". */
+  title: string;
+  difficulty: Difficulty;
+  domain: KnowledgeDomain;
+  skills: SkillWeights;
+  /** Time a competent player of this age needs. Used for pacing, never shown as a timer. */
+  parMs: number;
+  mount: PuzzleMount;
+}
+
 export interface AttemptResult {
   /** Did the player reach the correct end state at all? */
   solved: boolean;

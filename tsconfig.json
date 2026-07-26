@@ -5,12 +5,14 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
 
     "noEmit": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
+    // Tests are run directly by `node --test`, which needs explicit .ts specifiers.
+    "allowImportingTsExtensions": true,
 
     "strict": true,
     "noUnusedLocals": true,

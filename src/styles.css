@@ -712,11 +712,108 @@ p {
   }
 }
 
+/* --- Session panel + skills -------------------------------------------- */
+
+.panel {
+  display: grid;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border-radius: var(--r-lg);
+  background-color: var(--mv-surface);
+  box-shadow: var(--mv-lift);
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.panel__title {
+  font-size: var(--fs-100);
+  font-weight: 600;
+  color: var(--mv-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.panel__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.panel__level {
+  font-size: var(--fs-100);
+  font-weight: 650;
+  color: var(--mv-accent);
+}
+
+/* Two columns at every width keeps the four headline skills balanced. */
+.skills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3) var(--sp-4);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.skill {
+  display: grid;
+  gap: var(--sp-1);
+}
+
+.skill__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.skill__name {
+  font-size: var(--fs-100);
+  color: var(--mv-text-dim);
+}
+
+.skill__delta {
+  font-size: var(--fs-100);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.skill__delta--up {
+  color: var(--mv-success);
+}
+
+.skill__delta--down {
+  color: var(--mv-text-dim);
+}
+
+.skill__bar {
+  display: block;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background-color: var(--mv-surface-2);
+  box-shadow: inset 0 0 0 1px var(--mv-border);
+  overflow: hidden;
+}
+
+.skill__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background-color: var(--mv-accent);
+  transform-origin: left center;
+  transition: transform var(--dur-slow) var(--ease);
+}
+
 .stats {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
-  gap: var(--sp-3);
+  gap: var(--sp-2);
 }
 
 .stat {
@@ -740,6 +837,10 @@ p {
   font-size: var(--fs-400);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
+}
+
+.stat__val--sm {
+  font-size: var(--fs-200);
 }
 
 /* --- Visuals ------------------------------------------------------------ */
