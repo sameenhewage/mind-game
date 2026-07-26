@@ -15,6 +15,7 @@ import { shuffle } from '../game/util';
 import { choicePuzzle } from '../puzzles/choice';
 import { matchPuzzle } from '../puzzles/match';
 import { memoryPuzzle } from '../puzzles/memory';
+import { sequencePuzzle } from '../puzzles/sequence';
 import { sortPuzzle, type SortPiece } from '../puzzles/sort';
 import type { ColourName, ShapeKind, Visual } from '../ui/visual';
 
@@ -475,6 +476,58 @@ export function storyNextCard(difficulty: Difficulty): PuzzleCard {
   };
 }
 
+/* ------------------------------------------------------- first-order planning */
+
+const TINY_PLANS = [
+  {
+    id: 'wash',
+    instruction: 'What do you do first, next and last?',
+    steps: [
+      { id: 'tap', label: 'Turn on the tap', char: '🚰' },
+      { id: 'soap', label: 'Wash with soap', char: '🧼' },
+      { id: 'towel', label: 'Dry your hands', char: '🧺' },
+    ],
+    explain: 'Water first, then soap, then dry.',
+  },
+  {
+    id: 'dress',
+    instruction: 'What do you do first, next and last?',
+    steps: [
+      { id: 'sock', label: 'Put on socks', char: '🧦' },
+      { id: 'shoe', label: 'Put on shoes', char: '👟' },
+      { id: 'out', label: 'Go outside', char: '🚪' },
+    ],
+    explain: 'Socks go on before shoes, and shoes go on before you go out.',
+  },
+];
+
+/** Ordering three everyday steps: the first taste of planning. */
+export function tinyPlanCard(difficulty: Difficulty): PuzzleCard {
+  const plan = TINY_PLANS[Math.floor(Math.random() * TINY_PLANS.length)];
+  if (!plan) throw new Error('tiny plan pool empty');
+
+  return {
+    id: `le-plan-${difficulty}`,
+    title: 'First, next, last',
+    difficulty,
+    domain: 'problem-solving',
+    skills: { planning: 0.5, logic: 0.25, knowledge: 0.25 },
+    parMs: plan.steps.length * SLOW_STEP_MS * 2,
+    mount: sequencePuzzle({
+      instruction: plan.instruction,
+      items: shuffle(plan.steps).map((step) => ({
+        id: step.id,
+        label: step.label,
+        visual: { type: 'icon', char: step.char },
+      })),
+      solution: plan.steps.map((step) => step.id),
+      // Very forgiving: a young player can shuffle them about for a while.
+      attempts: 4,
+      explain: plan.explain,
+    }),
+  };
+}
+
 /** Everything a 3-5 player can meet, in rough order of introduction. */
 export const LITTLE_EXPLORER_BUILDERS = [
   shapeSortCard,
@@ -486,4 +539,5 @@ export const LITTLE_EXPLORER_BUILDERS = [
   habitatMatchCard,
   visualMemoryCard,
   storyNextCard,
+  tinyPlanCard,
 ];

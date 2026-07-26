@@ -957,6 +957,17 @@ p {
   color: var(--mv-text-dim);
 }
 
+/* When the words are the answer rather than a caption, they read at full weight. */
+.option:not(:has(.vis)) .option__label {
+  font-size: var(--fs-200);
+  color: var(--mv-text);
+}
+
+.option:not(:has(.vis)) {
+  padding-inline: var(--sp-4);
+  text-align: center;
+}
+
 .option.is-right {
   box-shadow: 0 0 0 3px var(--mv-success), var(--mv-shadow);
 }

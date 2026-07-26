@@ -9,6 +9,7 @@ import type { Difficulty } from '../game/brain';
 import type { KnowledgeDomain, PuzzleCard } from '../game/puzzle';
 import type { AgeGroup } from '../game/types';
 import { CHALLENGER_BUILDERS } from './challenger';
+import { KNOWLEDGE_BUILDERS } from './knowledge';
 import { LITTLE_EXPLORER_BUILDERS } from './little-explorer';
 import { MIND_VAULT_BUILDERS } from './mind-vault';
 import { YOUNG_EXPLORER_BUILDERS } from './young-explorer';
@@ -22,11 +23,11 @@ export type CardBuilder = (difficulty: Difficulty) => PuzzleCard;
  * adult a toddler's board.
  */
 const POOLS: Record<AgeGroup, CardBuilder[]> = {
-  '3-5': LITTLE_EXPLORER_BUILDERS,
-  '6-8': [...YOUNG_EXPLORER_BUILDERS, ...LITTLE_EXPLORER_BUILDERS.slice(4)],
-  '9-12': [...YOUNG_THINKER_BUILDERS, ...YOUNG_EXPLORER_BUILDERS.slice(2)],
-  '13-17': [...CHALLENGER_BUILDERS, ...YOUNG_THINKER_BUILDERS.slice(1)],
-  '18+': [...MIND_VAULT_BUILDERS, ...CHALLENGER_BUILDERS.slice(2)],
+  '3-5': [...LITTLE_EXPLORER_BUILDERS, ...KNOWLEDGE_BUILDERS['3-5']],
+  '6-8': [...YOUNG_EXPLORER_BUILDERS, ...LITTLE_EXPLORER_BUILDERS.slice(4), ...KNOWLEDGE_BUILDERS['6-8']],
+  '9-12': [...YOUNG_THINKER_BUILDERS, ...YOUNG_EXPLORER_BUILDERS.slice(2), ...KNOWLEDGE_BUILDERS['9-12']],
+  '13-17': [...CHALLENGER_BUILDERS, ...YOUNG_THINKER_BUILDERS.slice(1), ...KNOWLEDGE_BUILDERS['13-17']],
+  '18+': [...MIND_VAULT_BUILDERS, ...CHALLENGER_BUILDERS.slice(2), ...KNOWLEDGE_BUILDERS['18+']],
 };
 
 export function buildersFor(ageGroup: AgeGroup): CardBuilder[] {
