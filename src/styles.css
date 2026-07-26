@@ -531,30 +531,241 @@ p {
 
 .stage {
   display: grid;
-  place-content: center;
+  align-content: center;
   min-height: 12rem;
-  border: 1px dashed var(--mv-border);
-  border-radius: var(--r-lg);
-  padding: var(--sp-4);
-}
-
-.stage__empty {
-  color: var(--mv-text-dim);
-  font-size: var(--fs-100);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+  max-height: 40rem;
+  padding-block: var(--sp-2);
 }
 
 .chamber__foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: var(--sp-3);
 }
 
 .chamber__progress {
   color: var(--mv-text-dim);
   font-size: var(--fs-100);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* --- Sort Into Bucket --------------------------------------------------- */
+
+.sort {
+  --piece: clamp(52px, 15vw, 76px);
+  display: grid;
+  /* Tray and buckets sit apart so the gesture reads as "move it over there",
+     without making the distance tiring on a tall phone. */
+  row-gap: clamp(var(--sp-5), 5vh, var(--sp-7));
+  align-content: center;
+}
+
+/* Fixed columns keep the tray balanced (6 pieces read as 3 + 3). */
+.tray {
+  display: grid;
+  grid-template-columns: repeat(3, var(--piece));
+  justify-content: center;
+  gap: var(--sp-3);
+  min-height: calc(var(--piece) + var(--sp-2));
+}
+
+.tray--wide {
+  grid-template-columns: repeat(4, var(--piece));
+}
+
+.piece {
+  width: var(--piece);
+  min-height: var(--piece);
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  padding: 0;
+  border-radius: var(--r-md);
+  background-color: transparent;
+  /* Pointer Events own this gesture; stop the browser scrolling/zooming instead. */
+  touch-action: none;
+  will-change: transform;
+  transition: filter var(--dur-fast) var(--ease);
+}
+
+.piece .vis--shape {
+  width: 100%;
+}
+
+.piece__label {
+  font-size: var(--fs-100);
+  color: var(--mv-text-dim);
+}
+
+.piece.is-dragging {
+  position: relative;
+  z-index: 20;
+  cursor: grabbing;
+  filter: drop-shadow(0 10px 16px #00000045);
+}
+
+.piece.is-selected {
+  outline: 3px solid var(--mv-accent);
+  outline-offset: 4px;
+}
+
+.piece.is-placed {
+  visibility: hidden;
+}
+
+.piece.is-wrong {
+  animation: nudge 400ms var(--ease);
+}
+
+.tray:not(.is-empty) .piece:not(.is-dragging):not(.is-placed) {
+  cursor: grab;
+}
+
+.buckets {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--sp-2);
+  align-items: start;
+}
+
+.bucket {
+  display: grid;
+  justify-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  border-radius: var(--r-lg);
+  background-color: transparent;
+  transition: transform var(--dur-base) var(--ease);
+}
+
+.bucket__mouth {
+  width: 100%;
+  min-height: clamp(72px, 22vw, 104px);
+  display: grid;
+  place-items: center;
+  padding: var(--sp-2);
+  border: 2px dashed var(--mv-border);
+  border-radius: var(--r-lg);
+  background-color: var(--mv-surface-2);
+  transition: border-color var(--dur-base) var(--ease),
+    background-color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
+}
+
+.bucket__mouth .vis--shape {
+  width: clamp(34px, 10vw, 46px);
+  opacity: 0.55;
+}
+
+.bucket__hint {
+  color: var(--mv-text-dim);
+  font-size: var(--fs-100);
+}
+
+.bucket__label {
+  font-size: var(--fs-100);
+  font-weight: 600;
+  color: var(--mv-text-dim);
+  letter-spacing: 0.04em;
+}
+
+.bucket__slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  min-height: 14px;
+}
+
+.bucket__slots .token {
+  width: 14px;
+  animation: token-in var(--dur-base) var(--ease) both;
+}
+
+/* Valid target under the piece: invite the drop. */
+.bucket.is-near .bucket__mouth {
+  border-style: solid;
+  border-color: var(--mv-accent);
+  background-color: color-mix(in srgb, var(--mv-accent) 14%, transparent);
+  transform: scale(1.04);
+}
+
+.bucket.is-filled .bucket__mouth {
+  animation: bucket-pop var(--dur-slow) var(--ease);
+}
+
+/* Wrong bucket: a small shrug, never an alarm. */
+.bucket.is-rejecting .bucket__mouth {
+  animation: shrug 320ms var(--ease);
+}
+
+/* While a piece is armed by tap/keyboard, show where it can go. */
+.sort.is-picking .bucket__mouth {
+  border-color: color-mix(in srgb, var(--mv-accent) 55%, var(--mv-border));
+}
+
+@media (hover: hover) {
+  .bucket:hover .bucket__mouth {
+    border-color: var(--mv-accent);
+  }
+}
+
+.stats {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--sp-3);
+}
+
+.stat {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  background-color: var(--mv-surface);
+  box-shadow: var(--mv-lift);
+}
+
+.stat__key {
+  color: var(--mv-text-dim);
+  font-size: var(--fs-100);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.stat__val {
+  font-size: var(--fs-400);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Visuals ------------------------------------------------------------ */
+
+.vis {
+  display: block;
+}
+
+.vis--shape {
+  color: var(--mv-accent);
+}
+
+.vis--shape.tone-one {
+  color: #4c9ff0;
+}
+
+.vis--shape.tone-two {
+  color: #f2a93b;
+}
+
+.vis--shape.tone-three {
+  color: #57c98a;
+}
+
+.vis--shape.tone-four {
+  color: #d977c0;
 }
 
 /* 7. Motion -------------------------------------------------------------- */
@@ -563,6 +774,49 @@ p {
   from {
     opacity: 0;
     transform: translate3d(0, 8px, 0);
+  }
+}
+
+@keyframes token-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+/* Bucket acknowledges the piece it just received. */
+@keyframes bucket-pop {
+  35% {
+    transform: scale(1.07);
+    border-color: var(--mv-success);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Gentle "not this one" - no colour alarm, no screen shake. */
+@keyframes shrug {
+  30% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  65% {
+    transform: translate3d(4px, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes nudge {
+  40% {
+    transform: rotate(-4deg);
+  }
+  70% {
+    transform: rotate(4deg);
+  }
+  to {
+    transform: rotate(0deg);
   }
 }
 

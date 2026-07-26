@@ -10,6 +10,8 @@ export interface ScreenView {
   element: HTMLElement;
   /** `data-theme` for <html>; omit to keep the default vault theme. */
   theme?: string | undefined;
+  /** Released when this view is replaced, so puzzles can drop their listeners. */
+  dispose?: (() => void) | undefined;
 }
 
 export interface ScreenHost {
@@ -17,8 +19,13 @@ export interface ScreenHost {
 }
 
 export function createScreenHost(root: HTMLElement): ScreenHost {
+  let disposeCurrent: (() => void) | undefined;
+
   return {
-    show({ screen, element, theme }) {
+    show({ screen, element, theme, dispose }) {
+      disposeCurrent?.();
+      disposeCurrent = dispose;
+
       const html = document.documentElement;
       if (theme) {
         html.dataset.theme = theme;

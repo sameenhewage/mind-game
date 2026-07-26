@@ -1,6 +1,8 @@
 import './styles.css';
 
+import { shapeSort } from './content/little-explorer';
 import { readAgeGroup, writeAgeGroup } from './game/prefs';
+import type { AttemptResult } from './game/puzzle';
 import { ageGroupInfo, type AgeGroup } from './game/types';
 import { renderAgeSelect } from './ui/age-select';
 import { renderGameScreen } from './ui/game-screen';
@@ -53,22 +55,31 @@ function showHome(group: AgeGroup): void {
 }
 
 function showGame(group: AgeGroup): void {
+  const view = renderGameScreen({
+    ageGroup: group,
+    title: 'Chamber 1',
+    mount: shapeSort(['circle', 'triangle', 'square']),
+    onExit: () => showHome(group),
+    onDone: (result) => showResults(group, result),
+  });
+
   host.show({
     screen: 'game',
     theme: themeFor(group),
-    element: renderGameScreen({
-      ageGroup: group,
-      onExit: () => showHome(group),
-      onFinish: () => showResults(group),
-    }),
+    element: view.element,
+    dispose: view.dispose,
   });
 }
 
-function showResults(group: AgeGroup): void {
+function showResults(group: AgeGroup, result: AttemptResult): void {
   host.show({
     screen: 'results',
     theme: themeFor(group),
-    element: renderResults({ onHome: () => showHome(group) }),
+    element: renderResults({
+      result,
+      onAgain: () => showGame(group),
+      onHome: () => showHome(group),
+    }),
   });
 }
 
