@@ -1,4 +1,5 @@
 import type { Brain } from '../game/brain';
+import { runShape } from '../game/run';
 import { ageGroupInfo, type AgeGroup } from '../game/types';
 import { el, pips } from './dom';
 import { renderSkillPanel } from './skills';
@@ -6,18 +7,28 @@ import { renderSkillPanel } from './skills';
 export interface HomeOptions {
   ageGroup: AgeGroup;
   brain: Brain;
+  /** Deepest run this session, shown as a replay target. */
+  bestDepth: number;
   onStartRun: () => void;
   onChangeAge: () => void;
 }
 
-export function renderHome({ ageGroup, brain, onStartRun, onChangeAge }: HomeOptions): HTMLElement {
+export function renderHome({
+  ageGroup,
+  brain,
+  bestDepth,
+  onStartRun,
+  onChangeAge,
+}: HomeOptions): HTMLElement {
   const info = ageGroupInfo(ageGroup);
+  const shape = runShape(ageGroup);
+  const total = shape.chambers + 1;
 
   const start = el('button', { class: 'btn btn--primary btn--xl', type: 'button' }, [
-    el('span', { class: 'btn__label', text: brain.hasHistory ? 'Next chamber' : 'Start Run' }),
+    el('span', { class: 'btn__label', text: brain.hasHistory ? 'New run' : 'Start Run' }),
     el('span', {
       class: 'btn__hint',
-      text: brain.hasHistory ? `Level ${brain.difficulty}` : 'A short set of puzzles',
+      text: `${shape.chambers} chambers, then the Final Vault`,
     }),
   ]);
   start.addEventListener('click', onStartRun);
@@ -71,9 +82,12 @@ export function renderHome({ ageGroup, brain, onStartRun, onChangeAge }: HomeOpt
           renderSkillPanel({ skills: brain.skills }),
           el('p', {
             class: 'note',
-            text: `${brain.attempts} chamber${brain.attempts === 1 ? '' : 's'} played. Scores reset when you reload.`,
+            text: `${brain.attempts} chamber${brain.attempts === 1 ? '' : 's'} played · deepest run ${bestDepth} of ${total}. Scores reset when you reload.`,
           }),
         ])
-      : el('p', { class: 'note', text: 'Play a chamber to see how your session is going.' }),
+      : el('p', {
+          class: 'note',
+          text: 'Clear each chamber to collect a key, then open the Final Vault with them.',
+        }),
   ]);
 }

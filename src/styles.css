@@ -1071,6 +1071,69 @@ p {
   }
 }
 
+/* --- Vault run ---------------------------------------------------------- */
+
+/* The key the player must carry to the Final Vault: deliberately unmissable. */
+.keycard {
+  display: grid;
+  justify-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--r-lg);
+  background-color: var(--mv-surface);
+  box-shadow: 0 0 0 2px var(--mv-accent), var(--mv-shadow);
+  animation: keycard-in var(--dur-slow) var(--ease) both;
+}
+
+.keycard__symbol {
+  font-size: clamp(2.6rem, 12vw, 3.6rem);
+  line-height: 1;
+  color: var(--mv-accent);
+}
+
+.keycard__number {
+  font-size: var(--fs-500);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.keycard__warn {
+  color: var(--mv-text-dim);
+  font-size: var(--fs-100);
+  text-align: center;
+  max-width: 22ch;
+}
+
+@keyframes keycard-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+}
+
+.runbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+}
+
+.runbar__text {
+  color: var(--mv-text-dim);
+  font-size: var(--fs-100);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.view--clear {
+  gap: var(--sp-5);
+  justify-items: center;
+}
+
+.view--clear .actions {
+  width: 100%;
+}
+
 /* --- Session panel + skills -------------------------------------------- */
 
 .panel {
