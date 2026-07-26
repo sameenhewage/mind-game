@@ -29,20 +29,23 @@ Authentication, durable progress persistence, PWA/offline infrastructure and clo
 |---|---|---|---|---|---|---|
 | 0 | Foundation | ACCEPTED | `prompts/PHASE-00-foundation.md` | `1da1983` | PASS | Accepted baseline |
 | 1 | Navigation & Player Entry | COMPLETE | `prompts/PHASE-01-navigation.md` | `cd05944` | PASS | Age select, home, chamber shell, results; session flow verified 320/820/1440 |
-| 2 | Shape Bucket Interaction | IN_PROGRESS | `prompts/PHASE-02-shape-bucket.md` | — | — | First real interaction quality gate |
-| 3 | Brain Engine — Session Only | QUEUED | `prompts/PHASE-03-brain-engine.md` | — | — | Adaptive scoring/difficulty; no persistence |
-| 4 | Little Explorer Content | QUEUED | `prompts/PHASE-04-little-explorer.md` | — | — | Expand age 3–5 |
-| 5 | Age-Adaptive Challenge Sets | QUEUED | `prompts/PHASE-05-age-groups.md` | — | — | 6–8, 9–12, 13–17, 18+ |
-| 6 | Knowledge Domains | QUEUED | `prompts/PHASE-06-knowledge-domains.md` | — | — | Maths, nature/science, problem solving, language/literature, history |
+| 2 | Shape Bucket Interaction | COMPLETE | `prompts/PHASE-02-shape-bucket.md` | `4760ef7` | PASS | Pointer engine; 3ms script cost at 4x CPU throttle, CLS 0.00 |
+| 3 | Brain Engine — Session Only | COMPLETE | `prompts/PHASE-03-brain-engine.md` | `5d75d45` | PASS | Deterministic scoring, difficulty 1–5, 14 rules tests |
+| 4 | Little Explorer Content | COMPLETE | `prompts/PHASE-04-little-explorer.md` | `fd977f1` | PASS | 10 activity families for 3–5; choose + memory engines |
+| 5 | Age-Adaptive Challenge Sets | COMPLETE | `prompts/PHASE-05-age-groups.md` | `ba93f26` | PASS | Sequence engine, rule mutation, rotation; four age pools |
+| 6 | Knowledge Domains | COMPLETE | `prompts/PHASE-06-knowledge-domains.md` | `72d7ccd` | PASS | All five domains present in every age group |
 | 7 | Offline Web App / PWA | DEFERRED | `prompts/PHASE-07-offline-pwa.md` | — | — | Decide after gameplay review |
-| 8 | Vault Run | QUEUED | `prompts/PHASE-08-vault-run.md` | — | — | Replayable multi-puzzle run; session state only |
+| 8 | Vault Run | COMPLETE | `prompts/PHASE-08-vault-run.md` | `7d17c2c` | PASS | Chambers + Final Vault built from collected keys |
 | 9 | Authentication / Cloud Sync | DEFERRED | `prompts/PHASE-09-cloud-sync.md` | — | — | Decide after gameplay/progress architecture review |
-| 10 | Gameplay Polish | QUEUED | `prompts/PHASE-10-polish-release.md` | — | — | Final gameplay milestone quality pass |
+| 10 | Gameplay Polish | COMPLETE | `prompts/PHASE-10-polish-release.md` | `4f8cd3e` | PASS | a11y 100, zero contrast failures, per-piece input locking |
 
 ## Current phase
 
-**Phase 2 — Shape Bucket Interaction**  
-Status: `IN_PROGRESS`
+**Gameplay milestone (Phases 1–6, 8, 10)**  
+Status: `COMPLETE` — awaiting architect review
+
+Phase 7 (PWA) and Phase 9 (auth/cloud sync) were skipped as `DEFERRED`, per
+`prompts/EXECUTE-CURRENT-ROADMAP.md`.
 
 ## Last architect-accepted implementation baseline
 
@@ -51,13 +54,8 @@ Commit: `1da1983e673483d709580d0a1cbcaf67f7ef4041`
 
 ## Next allowed work
 
-Execute the gameplay milestone sequentially using:
-
-`prompts/EXECUTE-CURRENT-ROADMAP.md`
-
-Order: **1 → 2 → 3 → 4 → 5 → 6 → 8 → 10**.
-
-Do not execute Phase 7 or Phase 9.
+Architect review of the completed gameplay milestone. No further implementation
+is authorized until the architect responds.
 
 ## Current persistence/auth decision
 
