@@ -556,10 +556,10 @@ p {
 .sort {
   --piece: clamp(52px, 15vw, 76px);
   display: grid;
-  /* Tray and buckets sit apart so the gesture reads as "move it over there",
-     without making the distance tiring on a tall phone. */
-  row-gap: clamp(var(--sp-5), 5vh, var(--sp-7));
+  /* Tray above buckets as one centred unit: far enough apart that the gesture
+     reads as "move it over there", close enough that it never tires a child. */
   align-content: center;
+  row-gap: clamp(var(--sp-5), 6vh, var(--sp-7));
 }
 
 /* Fixed columns keep the tray balanced (6 pieces read as 3 + 3). */
@@ -590,8 +590,14 @@ p {
   transition: filter var(--dur-fast) var(--ease);
 }
 
-.piece .vis--shape {
+.piece .vis--shape,
+.piece .vis--dots {
   width: 100%;
+}
+
+/* Draggable glyphs are deliberately chunky: they are the touch target. */
+.piece .vis--icon {
+  font-size: clamp(2.2rem, 8.5vw, 3.1rem);
 }
 
 .piece__label {
@@ -654,7 +660,8 @@ p {
     background-color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
 }
 
-.bucket__mouth .vis--shape {
+.bucket__mouth .vis--shape,
+.bucket__mouth .vis--dots {
   width: clamp(34px, 10vw, 46px);
   opacity: 0.55;
 }
@@ -709,6 +716,203 @@ p {
 @media (hover: hover) {
   .bucket:hover .bucket__mouth {
     border-color: var(--mv-accent);
+  }
+}
+
+/* Match pairs each piece with one partner, so targets read as cards. */
+.sort--match .buckets {
+  gap: var(--sp-3);
+}
+
+.sort--match .bucket__mouth {
+  min-height: clamp(64px, 18vw, 88px);
+  border-style: solid;
+  border-color: var(--mv-border);
+}
+
+.sort--match .bucket__label {
+  color: var(--mv-text);
+}
+
+/* --- Choose / Reason ---------------------------------------------------- */
+
+.choice {
+  display: grid;
+  gap: var(--sp-5);
+  align-content: center;
+  justify-items: center;
+}
+
+.choice__text {
+  max-width: 42ch;
+  padding: var(--sp-4);
+  border-radius: var(--r-md);
+  background-color: var(--mv-surface);
+  box-shadow: var(--mv-lift);
+  font-size: var(--fs-200);
+}
+
+/* The stem: a pattern, a scene or a part-finished sequence. */
+.stem {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.stem__cell {
+  width: clamp(38px, 11vw, 54px);
+  display: grid;
+  place-items: center;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-3);
+}
+
+.options--grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: 100%;
+  max-width: 22rem;
+}
+
+.option {
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  display: grid;
+  place-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-3);
+  border-radius: var(--r-lg);
+  background-color: var(--mv-surface);
+  box-shadow: var(--mv-lift);
+  transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-base) var(--ease),
+    opacity var(--dur-base) var(--ease);
+}
+
+.option .vis {
+  width: clamp(44px, 13vw, 62px);
+}
+
+.option .vis--icon,
+.option .vis--text {
+  width: auto;
+}
+
+.option:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.option__label {
+  font-size: var(--fs-100);
+  color: var(--mv-text-dim);
+}
+
+.option.is-right {
+  box-shadow: 0 0 0 3px var(--mv-success), var(--mv-shadow);
+}
+
+.option.is-wrong {
+  animation: nudge 400ms var(--ease);
+}
+
+.option:disabled {
+  opacity: 0.4;
+}
+
+@media (hover: hover) {
+  .option:hover:not(:disabled) {
+    box-shadow: 0 0 0 2px var(--mv-accent), var(--mv-shadow);
+  }
+}
+
+.feedback {
+  min-height: 1.5em;
+  color: var(--mv-text-dim);
+  font-size: var(--fs-200);
+  text-align: center;
+}
+
+/* --- Memory ------------------------------------------------------------- */
+
+.memory {
+  display: grid;
+  gap: var(--sp-4);
+  align-content: center;
+  justify-items: center;
+}
+
+.memory__set {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-3);
+}
+
+.memory__set--grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.memory__item {
+  display: grid;
+  place-items: center;
+  gap: var(--sp-1);
+  min-width: clamp(56px, 16vw, 76px);
+  padding: var(--sp-2);
+  border-radius: var(--r-md);
+  background-color: var(--mv-surface);
+  box-shadow: var(--mv-lift);
+  animation: token-in var(--dur-base) var(--ease) both;
+}
+
+.memory__item .vis {
+  width: clamp(40px, 12vw, 56px);
+}
+
+.memory__item .vis--icon {
+  width: auto;
+}
+
+.memory__divider {
+  width: 3rem;
+  height: 2px;
+  border-radius: var(--r-pill);
+  background-color: var(--mv-border);
+}
+
+/* Study window as a filling bar, not a countdown clock. */
+.lookbar {
+  display: block;
+  width: min(14rem, 60%);
+  height: 6px;
+  border-radius: var(--r-pill);
+  background-color: var(--mv-surface-2);
+  box-shadow: inset 0 0 0 1px var(--mv-border);
+  overflow: hidden;
+}
+
+.lookbar__fill {
+  display: block;
+  height: 100%;
+  background-color: var(--mv-accent);
+  transform-origin: left center;
+  animation-name: lookbar;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+@keyframes lookbar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
   }
 }
 
@@ -849,24 +1053,73 @@ p {
   display: block;
 }
 
-.vis--shape {
+/* Uncoloured art follows the theme accent; named colours are used when the
+   colour itself is the puzzle, so they must stay recognisable in every theme.
+   SVG art fills its slot by default: an inline SVG with only a viewBox has no
+   intrinsic width to fall back on. */
+.vis--shape,
+.vis--dots {
+  width: 100%;
   color: var(--mv-accent);
 }
 
-.vis--shape.tone-one {
-  color: #4c9ff0;
+.ink-red {
+  color: #e04b3f;
 }
 
-.vis--shape.tone-two {
-  color: #f2a93b;
+.ink-orange {
+  color: #ee8b21;
 }
 
-.vis--shape.tone-three {
-  color: #57c98a;
+.ink-yellow {
+  color: #e8bb15;
 }
 
-.vis--shape.tone-four {
-  color: #d977c0;
+.ink-green {
+  color: #3faa6a;
+}
+
+.ink-blue {
+  color: #3d8fe0;
+}
+
+.ink-purple {
+  color: #9068d8;
+}
+
+.vis--shape.size-sm {
+  width: 55%;
+  margin-inline: auto;
+}
+
+.vis--shape.size-lg {
+  width: 100%;
+}
+
+.vis--icon {
+  font-size: clamp(1.9rem, 7vw, 2.6rem);
+  line-height: 1.1;
+  text-align: center;
+}
+
+.vis--icon.size-sm {
+  font-size: clamp(1.3rem, 5vw, 1.7rem);
+}
+
+.vis--icon.size-lg {
+  font-size: clamp(2.4rem, 9vw, 3.4rem);
+}
+
+.vis--text {
+  font-size: var(--fs-400);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.vis--strong {
+  font-size: var(--fs-500);
+  color: var(--mv-accent);
 }
 
 /* 7. Motion -------------------------------------------------------------- */

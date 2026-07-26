@@ -1,6 +1,6 @@
 import './styles.css';
 
-import { shapeSortCard } from './content/little-explorer';
+import { pickCard } from './content/catalog';
 import { createBrain, type Brain } from './game/brain';
 import { readAgeGroup, writeAgeGroup } from './game/prefs';
 import type { AttemptResult, PuzzleCard } from './game/puzzle';
@@ -23,6 +23,8 @@ const host = createScreenHost(root);
 let ageGroup: AgeGroup | null = readAgeGroup();
 let brain: Brain | null = ageGroup ? createBrain(ageGroup) : null;
 let chamberNumber = 0;
+/** Recently played activities, so back-to-back chambers stay varied. */
+let recentIds: string[] = [];
 
 function themeFor(group: AgeGroup | null): string | undefined {
   return group ? ageGroupInfo(group).theme : undefined;
@@ -34,6 +36,7 @@ function useAgeGroup(group: AgeGroup): Brain {
     ageGroup = group;
     brain = createBrain(group);
     chamberNumber = 0;
+    recentIds = [];
   }
   return brain;
 }
@@ -70,12 +73,14 @@ function showHome(group: AgeGroup): void {
 
 function showGame(group: AgeGroup): void {
   const active = useAgeGroup(group);
-  const card = shapeSortCard(active.difficulty);
+  const card = pickCard(group, active.difficulty, recentIds);
   chamberNumber += 1;
+  recentIds = [...recentIds, card.id].slice(-3);
 
   const view = renderGameScreen({
     ageGroup: group,
     title: `Chamber ${chamberNumber}`,
+    subtitle: card.title,
     mount: card.mount,
     onExit: () => showHome(group),
     onDone: (result) => showResults(group, card, result),

@@ -1,12 +1,14 @@
 import type { AttemptResult, PuzzleMount } from '../game/puzzle';
 import { prefersReducedMotion } from '../game/puzzle';
-import { ageGroupInfo, type AgeGroup } from '../game/types';
+import type { AgeGroup } from '../game/types';
 import { el } from './dom';
 
 export interface GameScreenOptions {
   ageGroup: AgeGroup;
   /** Chamber heading, e.g. "Chamber 1". */
   title: string;
+  /** What the activity is, e.g. "Colour sort". */
+  subtitle: string;
   mount: PuzzleMount;
   onExit: () => void;
   onDone: (result: AttemptResult) => void;
@@ -20,14 +22,12 @@ export interface GameScreenView {
 
 /** One chamber: one task. The puzzle owns the game area, nothing else. */
 export function renderGameScreen({
-  ageGroup,
   title,
+  subtitle,
   mount,
   onExit,
   onDone,
 }: GameScreenOptions): GameScreenView {
-  const info = ageGroupInfo(ageGroup);
-
   const exit = el('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Leave run', text: 'Leave' });
   exit.addEventListener('click', onExit);
 
@@ -45,7 +45,7 @@ export function renderGameScreen({
           'data-screen-focus': true,
           text: title,
         }),
-        el('p', { class: 'chamber__mode', text: info.name }),
+        el('p', { class: 'chamber__mode', text: subtitle }),
       ]),
       exit,
     ]),

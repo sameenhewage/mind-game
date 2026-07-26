@@ -33,6 +33,11 @@ export interface SortSpec {
   showPieceLabels?: boolean;
   /** Show the bucket label as text. */
   showBucketLabels?: boolean;
+  /**
+   * `match` pairs each piece with one partner instead of filling a bucket. The
+   * interaction is identical, so the same engine drives both.
+   */
+  variant?: 'buckets' | 'match';
 }
 
 export function sortPuzzle(spec: SortSpec): PuzzleMount {
@@ -45,7 +50,8 @@ export function sortPuzzle(spec: SortSpec): PuzzleMount {
     const bucketOf = new Map(spec.pieces.map((piece) => [piece.id, piece.bucketId]));
 
     ctx.setInstruction(spec.instruction);
-    const progress = () => ctx.setProgress(`${placed} of ${spec.pieces.length} sorted`);
+    const verb = spec.variant === 'match' ? 'matched' : 'sorted';
+    const progress = () => ctx.setProgress(`${placed} of ${spec.pieces.length} ${verb}`);
     progress();
 
     const tray = el('div', {
@@ -88,7 +94,9 @@ export function sortPuzzle(spec: SortSpec): PuzzleMount {
       bucketRow.append(node);
     }
 
-    const board = el('div', { class: 'sort' }, [tray, bucketRow]);
+    const board = el('div', {
+      class: spec.variant === 'match' ? 'sort sort--match' : 'sort',
+    }, [tray, bucketRow]);
     ctx.area.replaceChildren(board);
 
     const engine = createPickPlace({
