@@ -16,12 +16,33 @@ exercising the brain.**
 - Simple to play, difficult to master.
 - Very lightweight; works on phone, tablet, laptop and desktop.
 - Touch and mouse must both feel natural.
-- Difficulty grows through rules, memory depth, decisions, distractors and
-  reasoning steps — never through heavier graphics.
-- No IQ score, no mental age, no intelligence label. Progress is reported as
-  in-game skills only: Memory, Logic, Focus, Problem Solving, Patterns,
-  Planning, Knowledge.
+- Difficulty grows through rules, memory depth, decisions, distractors and reasoning steps — never through heavier graphics.
+- No IQ score, no mental age, no intelligence label. Skill values are in-game performance metrics only.
 - All puzzles are skill-solvable. There is never hidden random failure.
+
+## Current milestone — build the game first
+
+The current roadmap intentionally focuses on proving the game itself before building account/progress infrastructure.
+
+Current milestone includes:
+- navigation/player entry;
+- smooth Shape Bucket interaction;
+- in-session brain scoring and adaptive difficulty;
+- Little Explorer content for ages 3–5;
+- challenge sets for 6–8, 9–12, 13–17 and 18+;
+- maths, nature/science, problem solving, language/literature and history as puzzle material;
+- a replayable Vault Run;
+- gameplay polish across mobile, tablet and desktop.
+
+Intentionally deferred until after gameplay review:
+- durable IndexedDB progress;
+- PWA/service-worker offline architecture;
+- authentication;
+- Google/Apple sign-in;
+- cloud/backend/database;
+- cross-device sync.
+
+Losing in-session scores/run state on a hard reload is acceptable during this milestone. Selected age group may persist as a tiny preference.
 
 ## Technology
 
@@ -33,16 +54,13 @@ exercising the brain.**
 | Interaction | Browser Pointer Events (mouse/touch/pen, one path) |
 | Animation | CSS transitions/animations; Web Animations API only where JS control is required |
 | Tiny preferences | `localStorage` |
-| Real local progress | Native IndexedDB from the phase where a real progress model exists |
-| Offline application assets | Service Worker + Cache Storage in the later PWA phase |
-| Cross-device progress | Optional later cloud sync using one MIND VAULT progress model |
+| Current brain/run state | In memory for the active session |
 
 Runtime dependencies currently: **zero**. Dev dependencies: `vite`, `typescript`.
 
 Deliberately not used in the current architecture: React, Vue, Angular, Phaser,
 PixiJS, Three.js, Redux, RxJS, animation libraries, physics libraries or UI
-component kits. Backend/authentication/cloud storage are later concerns only if the
-approved cloud-sync phase is reached.
+component kits.
 
 ## Simplicity and performance principles
 
@@ -50,50 +68,35 @@ approved cloud-sync phase is reached.
 - Animate `transform` and `opacity`; avoid layout-heavy animation.
 - Animation communicates game state — it is not decoration, and it never delays play.
 - Respect `prefers-reduced-motion`.
-- Mobile-first from 320px up; the game area stays centred on wide screens instead
-  of stretching.
-- Large touch targets, especially for young players (`--touch-min`).
-- Build only what the current phase needs. No repositories, service layers,
-  event buses, DI or plugin systems without a demonstrated need.
-
-## Progress and offline direction
-
-MIND VAULT is local-first.
-
-- A normal puzzle saves locally first and must not wait for cloud sync.
-- `localStorage` is only for tiny bootstrap/preferences such as selected age group.
-- Actual scores, attempts, run state and adaptive progress belong in IndexedDB once
-  that model exists.
-- PWA caching is a separate responsibility from player progress.
-- Optional cross-device sync comes later and uses one MIND VAULT progress system;
-  Google/Apple sign-in must not become separate game-save architectures.
+- Mobile-first from 320px up; the game area stays centred on wide screens instead of stretching.
+- Large touch targets, especially for young players.
+- Build only what the current phase needs. No speculative architecture.
 
 ## Privacy
 
-Early phases collect only an age *group* — never a name, exact date of birth,
-school, address, phone or email. No account is required for the local-first game.
-Any later cloud/account design for young players must be reviewed separately with a
-parent/guardian-oriented approach.
+The gameplay milestone collects only an age *group* — never a name, exact date of birth, school, address, phone or email. No account exists in the current milestone.
+
+Any later progress/account design for young players will be architected separately.
 
 ## Getting started
 
 ```bash
 npm install
-npm run dev        # dev server
-npm run dev:lan    # dev server exposed on the LAN, for real phone testing
-npm run build      # typecheck + production build to dist/
-npm run preview    # serve the production build
-npm run typecheck  # types only
+npm run dev
+npm run dev:lan
+npm run build
+npm run preview
+npm run typecheck
 ```
 
 ## Project structure
 
 ```text
-index.html          document shell
+index.html
 public/favicon.svg
 src/
-  main.ts           entry point; renders into #app
-  styles.css        reset, design tokens, age themes, app layout
+  main.ts
+  styles.css
 
 prompts/            architect-owned phase implementation prompts
 PHASE-TRACKER.md    authoritative phase status/gate
@@ -107,13 +110,13 @@ Gameplay files are added only by the phase that actually needs them.
 
 | Group | Name | Focus |
 | --- | --- | --- |
-| 3–5 | Little Explorer | shapes, colours, matching, sorting, size, counting to 5, visual memory. Almost no reading, no stressful timer, gentle feedback. |
-| 6–8 | Young Explorer | basic arithmetic, sequences, categories, simple logic, nature, vocabulary, story order. |
-| 9–12 | Young Thinker | arithmetic reasoning, pattern combinations, spatial reasoning, deduction, comprehension, multi-step puzzles. |
-| 13–17 | Challenger | multi-rule puzzles, planning, deduction, mathematical and scientific reasoning, optimisation, rule changes. |
-| 18+ | Mind Vault | full set: memory, logic, deduction, planning, rule mutation, abstract reasoning — without depending on reaction speed. |
+| 3–5 | Little Explorer | shapes, colours, matching, sorting, size, counting to 5, visual memory; almost no reading, no stressful timer, gentle feedback |
+| 6–8 | Young Explorer | basic arithmetic, sequences, categories, simple logic, nature, vocabulary, story order |
+| 9–12 | Young Thinker | arithmetic reasoning, pattern combinations, spatial reasoning, deduction, comprehension, multi-step puzzles |
+| 13–17 | Challenger | multi-rule puzzles, planning, deduction, mathematical/scientific reasoning, optimisation, rule changes |
+| 18+ | Mind Vault | full set: memory, logic, deduction, planning, rule mutation, abstract reasoning without depending on reaction speed |
 
-Themes change per age group; the core UI stays the same.
+Themes change per age group; the core application stays shared.
 
 ## Puzzle mechanics
 
@@ -124,18 +127,20 @@ existing set.
 
 ## Development workflow
 
-Implementation is phase-gated.
+Authoritative project control lives in:
 
-- Authoritative status: [`PHASE-TRACKER.md`](PHASE-TRACKER.md)
-- Architect-owned prompts: [`prompts/`](prompts/)
-- Accepted decisions: [`DECISIONS.md`](DECISIONS.md)
-- Agent execution rules: [`AGENTS.md`](AGENTS.md)
+- [`PHASE-TRACKER.md`](PHASE-TRACKER.md)
+- [`prompts/EXECUTE-CURRENT-ROADMAP.md`](prompts/EXECUTE-CURRENT-ROADMAP.md)
+- [`prompts/`](prompts/)
+- [`DECISIONS.md`](DECISIONS.md)
+- [`AGENTS.md`](AGENTS.md)
 
-Only a phase marked `READY` may start. An implementation agent finishes at
-`REVIEW`; only the architect promotes work to `ACCEPTED` and unlocks the next phase.
+The current gameplay batch executes sequentially in this order:
 
-Difficulty remains a small integer 1–5 and moves gradually based on evidence. The
-aim is "I nearly solved that", not "this is impossible".
+**1 → 2 → 3 → 4 → 5 → 6 → 8 → 10**
 
-The ~4% figure refers only to balancing a difficult full Vault Run once the game is
-mature. It is not a random win gate, and it does not apply to young children.
+Phases 7 (PWA/offline infrastructure) and 9 (auth/cloud sync) are explicitly deferred.
+
+Difficulty remains a small integer 1–5 and moves gradually based on evidence. The aim is "I nearly solved that", not "this is impossible".
+
+The ~4% figure refers only to future balancing of a difficult full Vault Run after real play data exists. It is not a random win gate, and it does not apply to young children.
