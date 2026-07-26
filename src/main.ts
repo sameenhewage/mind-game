@@ -1,38 +1,79 @@
 import './styles.css';
 
+import { readAgeGroup, writeAgeGroup } from './game/prefs';
+import { ageGroupInfo, type AgeGroup } from './game/types';
+import { renderAgeSelect } from './ui/age-select';
+import { renderGameScreen } from './ui/game-screen';
+import { renderHome } from './ui/home';
+import { renderResults } from './ui/results';
+import { createScreenHost } from './ui/screen';
+
 const root = document.querySelector<HTMLDivElement>('#app');
 
 if (!root) {
   throw new Error('MIND VAULT: #app container is missing from index.html');
 }
 
-// Phase 0 renders a static foundation screen only. Screens and gameplay are
-// added in later phases; this proves the container, tokens and build pipeline.
-root.innerHTML = `
-  <header>
-    <h1 class="brand">Mind <span class="brand__vault">Vault</span></h1>
-  </header>
+const host = createScreenHost(root);
 
-  <main class="app__main">
-    <section class="panel" aria-labelledby="foundation-title">
-      <p class="tag">Phase 0 &middot; Foundation</p>
-      <h2 class="panel__title" id="foundation-title">
-        Short puzzles that train how you think.
-      </h2>
-      <p class="panel__note">
-        Responsive shell, theme tokens and build pipeline are in place.
-        Age selection and the first puzzles arrive in the next phases.
-      </p>
-      <ul class="skills">
-        <li>Memory</li>
-        <li>Logic</li>
-        <li>Focus</li>
-        <li>Problem Solving</li>
-      </ul>
-    </section>
-  </main>
+/** The only persisted value. Everything else is session state. */
+let ageGroup: AgeGroup | null = readAgeGroup();
 
-  <footer class="app__footer">
-    No account, no server. Progress stays on this device.
-  </footer>
-`;
+function themeFor(group: AgeGroup | null): string | undefined {
+  return group ? ageGroupInfo(group).theme : undefined;
+}
+
+function showAgeSelect(): void {
+  const returning = ageGroup;
+  host.show({
+    screen: 'age-select',
+    theme: themeFor(ageGroup),
+    element: renderAgeSelect({
+      current: ageGroup,
+      onSelect: (selected) => {
+        ageGroup = selected;
+        writeAgeGroup(selected);
+        showHome(selected);
+      },
+      onCancel: returning ? () => showHome(returning) : undefined,
+    }),
+  });
+}
+
+function showHome(group: AgeGroup): void {
+  host.show({
+    screen: 'home',
+    theme: themeFor(group),
+    element: renderHome({
+      ageGroup: group,
+      onStartRun: () => showGame(group),
+      onChangeAge: showAgeSelect,
+    }),
+  });
+}
+
+function showGame(group: AgeGroup): void {
+  host.show({
+    screen: 'game',
+    theme: themeFor(group),
+    element: renderGameScreen({
+      ageGroup: group,
+      onExit: () => showHome(group),
+      onFinish: () => showResults(group),
+    }),
+  });
+}
+
+function showResults(group: AgeGroup): void {
+  host.show({
+    screen: 'results',
+    theme: themeFor(group),
+    element: renderResults({ onHome: () => showHome(group) }),
+  });
+}
+
+if (ageGroup) {
+  showHome(ageGroup);
+} else {
+  showAgeSelect();
+}
