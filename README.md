@@ -25,20 +25,24 @@ exercising the brain.**
 
 ## Technology
 
-| Area        | Choice                                            |
-| ----------- | ------------------------------------------------- |
-| Build tool  | Vite                                              |
-| Language    | Vanilla TypeScript (strict)                       |
-| UI          | Semantic HTML + modern CSS, SVG where useful      |
-| Interaction | Browser Pointer Events (mouse and touch, one path)|
-| Animation   | CSS transitions/animations; Web Animations API only where JS control is required |
-| Storage     | `localStorage` for age group, difficulty, skills, progress |
+| Area | Choice |
+| --- | --- |
+| Build tool | Vite |
+| Language | Vanilla TypeScript (strict) |
+| UI | Semantic HTML + modern CSS, SVG where useful |
+| Interaction | Browser Pointer Events (mouse/touch/pen, one path) |
+| Animation | CSS transitions/animations; Web Animations API only where JS control is required |
+| Tiny preferences | `localStorage` |
+| Real local progress | Native IndexedDB from the phase where a real progress model exists |
+| Offline application assets | Service Worker + Cache Storage in the later PWA phase |
+| Cross-device progress | Optional later cloud sync using one MIND VAULT progress model |
 
-Runtime dependencies: **zero**. Dev dependencies: `vite`, `typescript`.
+Runtime dependencies currently: **zero**. Dev dependencies: `vite`, `typescript`.
 
-Deliberately not used: React, Vue, Angular, Phaser, PixiJS, Three.js, Redux,
-RxJS, animation libraries, physics libraries, UI component kits, backend, database,
-authentication.
+Deliberately not used in the current architecture: React, Vue, Angular, Phaser,
+PixiJS, Three.js, Redux, RxJS, animation libraries, physics libraries or UI
+component kits. Backend/authentication/cloud storage are later concerns only if the
+approved cloud-sync phase is reached.
 
 ## Simplicity and performance principles
 
@@ -50,13 +54,26 @@ authentication.
   of stretching.
 - Large touch targets, especially for young players (`--touch-min`).
 - Build only what the current phase needs. No repositories, service layers,
-  event buses, DI or plugin systems.
+  event buses, DI or plugin systems without a demonstrated need.
+
+## Progress and offline direction
+
+MIND VAULT is local-first.
+
+- A normal puzzle saves locally first and must not wait for cloud sync.
+- `localStorage` is only for tiny bootstrap/preferences such as selected age group.
+- Actual scores, attempts, run state and adaptive progress belong in IndexedDB once
+  that model exists.
+- PWA caching is a separate responsibility from player progress.
+- Optional cross-device sync comes later and uses one MIND VAULT progress system;
+  Google/Apple sign-in must not become separate game-save architectures.
 
 ## Privacy
 
-No account, no server, no analytics. Only an age *group* is chosen — never a name,
-date of birth, school, address, phone or email. All progress stays in the browser's
-`localStorage` on the player's own device.
+Early phases collect only an age *group* — never a name, exact date of birth,
+school, address, phone or email. No account is required for the local-first game.
+Any later cloud/account design for young players must be reviewed separately with a
+parent/guardian-oriented approach.
 
 ## Getting started
 
@@ -77,46 +94,48 @@ public/favicon.svg
 src/
   main.ts           entry point; renders into #app
   styles.css        reset, design tokens, age themes, app layout
+
+prompts/            architect-owned phase implementation prompts
+PHASE-TRACKER.md    authoritative phase status/gate
+DECISIONS.md        accepted architecture/product decisions
+AGENTS.md           hard execution constraints
 ```
 
-Gameplay files (`game/`, `puzzles/`, `content/`, `ui/`) are added by the phases
-below, as each one is actually needed.
+Gameplay files are added only by the phase that actually needs them.
 
 ## Age groups
 
-| Group | Name            | Focus                                                              |
-| ----- | --------------- | ------------------------------------------------------------------ |
-| 3–5   | Little Explorer | shapes, colours, matching, sorting, size, counting to 5, visual memory. Almost no reading, no stressful timer, gentle feedback. |
-| 6–8   | Young Explorer  | basic arithmetic, sequences, categories, simple logic, nature, vocabulary, story order. |
-| 9–12  | Young Thinker   | arithmetic reasoning, pattern combinations, spatial reasoning, deduction, comprehension, multi-step puzzles. |
-| 13–17 | Challenger      | multi-rule puzzles, planning, deduction, mathematical and scientific reasoning, optimisation, rule changes. |
-| 18+   | Mind Vault      | full set: memory, logic, deduction, planning, rule mutation, abstract reasoning — without depending on reaction speed. |
+| Group | Name | Focus |
+| --- | --- | --- |
+| 3–5 | Little Explorer | shapes, colours, matching, sorting, size, counting to 5, visual memory. Almost no reading, no stressful timer, gentle feedback. |
+| 6–8 | Young Explorer | basic arithmetic, sequences, categories, simple logic, nature, vocabulary, story order. |
+| 9–12 | Young Thinker | arithmetic reasoning, pattern combinations, spatial reasoning, deduction, comprehension, multi-step puzzles. |
+| 13–17 | Challenger | multi-rule puzzles, planning, deduction, mathematical and scientific reasoning, optimisation, rule changes. |
+| 18+ | Mind Vault | full set: memory, logic, deduction, planning, rule mutation, abstract reasoning — without depending on reaction speed. |
 
 Themes change per age group; the core UI stays the same.
 
 ## Puzzle mechanics
 
-Five reusable mechanics carry all content: **Sort Into Bucket**, **Match**,
-**Sequence**, **Memory**, **Choose / Reason**. New content reuses these engines
-rather than adding a new system per puzzle.
+The initial reusable mechanic set is **Sort Into Bucket**, **Match**, **Sequence**,
+**Memory**, and **Choose / Reason**. Reuse them where they fit; add a new mechanic
+only when a real cognitive interaction cannot be represented cleanly by the
+existing set.
 
-## Phases
+## Development workflow
 
-| Phase | Scope                                                        | State |
-| ----- | ------------------------------------------------------------ | ----- |
-| 0     | Foundation: Vite + TypeScript, CSS reset, theme tokens, responsive container, verified dev/build | done |
-| 1     | Basic navigation: age select, home, game shell, result — tiny screen controller, no router | next |
-| 2     | Sort Into Bucket for ages 3–5, pointer-based drag and drop; sets the interaction quality bar | planned |
-| 3     | First brain engine: attempts, recent results, difficulty 1–5, basic skill values | planned |
-| 4     | Expand Little Explorer content on the existing mechanics      | planned |
-| 5     | Content for 6–8, 9–12, 13–17, 18+                             | planned |
-| 6     | Balanced knowledge domains: maths, nature/science, problem solving, language, history | planned |
-| 7     | Vault Run: five puzzles plus a final challenge, recorded results | planned |
-| 8     | Polish: transitions, drag smoothness, layouts, accessibility, size | planned |
+Implementation is phase-gated.
 
-Difficulty is a small integer 1–5. It starts from the age group and moves one
-step at a time based on recent results — never several levels at once. The aim is
-"I nearly solved that", not "this is impossible".
+- Authoritative status: [`PHASE-TRACKER.md`](PHASE-TRACKER.md)
+- Architect-owned prompts: [`prompts/`](prompts/)
+- Accepted decisions: [`DECISIONS.md`](DECISIONS.md)
+- Agent execution rules: [`AGENTS.md`](AGENTS.md)
 
-The ~4% figure refers only to completing a hard full Vault Run once the game is
-balanced. It is not a random win gate, and it does not apply to young children.
+Only a phase marked `READY` may start. An implementation agent finishes at
+`REVIEW`; only the architect promotes work to `ACCEPTED` and unlocks the next phase.
+
+Difficulty remains a small integer 1–5 and moves gradually based on evidence. The
+aim is "I nearly solved that", not "this is impossible".
+
+The ~4% figure refers only to balancing a difficult full Vault Run once the game is
+mature. It is not a random win gate, and it does not apply to young children.
