@@ -38,6 +38,15 @@ export interface SortSpec {
    * interaction is identical, so the same engine drives both.
    */
   variant?: 'buckets' | 'match';
+  /**
+   * Rule mutation: after `after` correct placements the sorting rule changes.
+   * The player has to notice and adapt, which is the actual challenge.
+   */
+  ruleSwitch?: {
+    after: number;
+    instruction: string;
+    bucketOf: (pieceId: string) => string;
+  };
 }
 
 export function sortPuzzle(spec: SortSpec): PuzzleMount {
@@ -99,10 +108,14 @@ export function sortPuzzle(spec: SortSpec): PuzzleMount {
     }, [tray, bucketRow]);
     ctx.area.replaceChildren(board);
 
+    let switched = false;
+    const targetFor = (pieceId: string): string | undefined =>
+      switched && spec.ruleSwitch ? spec.ruleSwitch.bucketOf(pieceId) : bucketOf.get(pieceId);
+
     const engine = createPickPlace({
       root: board,
       reduceMotion: ctx.reduceMotion,
-      isCorrect: (pieceId, bucketId) => bucketOf.get(pieceId) === bucketId,
+      isCorrect: (pieceId, bucketId) => targetFor(pieceId) === bucketId,
       onPlace: ({ piece, bucket, correct }) => {
         if (finished) return;
 
@@ -128,6 +141,13 @@ export function sortPuzzle(spec: SortSpec): PuzzleMount {
 
         placed += 1;
         progress();
+
+        if (spec.ruleSwitch && !switched && placed === spec.ruleSwitch.after) {
+          switched = true;
+          ctx.setInstruction(spec.ruleSwitch.instruction);
+          board.classList.add('is-switching');
+          window.setTimeout(() => board.classList.remove('is-switching'), 700);
+        }
 
         if (placed === spec.pieces.length) {
           finished = true;

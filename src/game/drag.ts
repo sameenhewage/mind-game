@@ -39,6 +39,12 @@ export interface PickPlaceOptions {
   /** Runs after the snap/return animation has finished. */
   onPlace: (event: PlaceEvent) => void;
   reduceMotion: boolean;
+  /**
+   * `absorb` (default) shrinks the piece into the target, for buckets that
+   * swallow what they receive. `settle` keeps it full size, for slots where the
+   * caller re-parents the piece and it stays visible.
+   */
+  snap?: 'absorb' | 'settle';
 }
 
 export interface PickPlace {
@@ -71,6 +77,7 @@ export function createPickPlace({
   isCorrect,
   onPlace,
   reduceMotion,
+  snap = 'absorb',
 }: PickPlaceOptions): PickPlace {
   let pointerId: number | null = null;
   let piece: HTMLElement | null = null;
@@ -162,12 +169,13 @@ export function createPickPlace({
     const to = boxOf(target.querySelector('[data-bucket-mouth]') ?? target);
     const dx = to.cx - box.cx;
     const dy = to.cy - box.cy;
+    const landed =
+      snap === 'settle'
+        ? { transform: `translate3d(${dx}px, ${dy}px, 0) scale(1)`, opacity: '1' }
+        : { transform: `translate3d(${dx}px, ${dy}px, 0) scale(0.34)`, opacity: '0.15' };
     animate(
       target,
-      [
-        { transform: from, opacity: '1' },
-        { transform: `translate3d(${dx}px, ${dy}px, 0) scale(0.34)`, opacity: '0.15' },
-      ],
+      [{ transform: from, opacity: '1' }, landed],
       SNAP_MS,
       () => {
         target.style.transform = '';

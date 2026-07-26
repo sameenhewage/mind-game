@@ -734,6 +734,150 @@ p {
   color: var(--mv-text);
 }
 
+/* The rule just changed: flag it without stopping play. */
+.sort.is-switching .bucket__mouth {
+  animation: bucket-pop var(--dur-slow) var(--ease);
+  border-color: var(--mv-warn);
+}
+
+/* --- Sequence ----------------------------------------------------------- */
+
+.sequence {
+  --piece: clamp(40px, 12vw, 64px);
+  display: grid;
+  gap: var(--sp-5);
+  align-content: center;
+  justify-items: center;
+}
+
+.tray--seq {
+  grid-template-columns: repeat(auto-fit, minmax(var(--piece), max-content));
+  justify-content: center;
+  min-height: calc(var(--piece) + var(--sp-4));
+  padding: var(--sp-2);
+  border-radius: var(--r-lg);
+  border: 1px dashed var(--mv-border);
+  width: 100%;
+  transition: min-height var(--dur-base) var(--ease), opacity var(--dur-base) var(--ease);
+}
+
+/* Once everything is placed the holding area stops taking up the screen. */
+.tray--seq:empty {
+  min-height: var(--sp-5);
+  opacity: 0.45;
+}
+
+/* Cards carry words as well as glyphs, so they are wider than plain pieces. */
+.piece--card {
+  width: auto;
+  min-width: var(--piece);
+  max-width: 8.5rem;
+  padding: var(--sp-2);
+  background-color: var(--mv-surface);
+  box-shadow: var(--mv-lift);
+}
+
+.piece--card .vis--text {
+  font-size: var(--fs-300);
+}
+
+.piece--card .piece__label {
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* A placed card must not spill out of its slot. */
+.slot__hole .piece--card {
+  max-width: 100%;
+}
+
+.sequence__track {
+  display: grid;
+  gap: var(--sp-1);
+  width: 100%;
+}
+
+/* Slots wrap on small phones rather than shrinking below a usable target; they
+   are numbered, so reading order still communicates the sequence. */
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
+  gap: var(--sp-2);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+@media (min-width: 30rem) {
+  .slots {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+  }
+
+  .sequence__ends {
+    display: flex;
+  }
+}
+
+.slot {
+  display: grid;
+  gap: var(--sp-1);
+  justify-items: center;
+  padding: var(--sp-1);
+  border-radius: var(--r-md);
+  transition: background-color var(--dur-base) var(--ease);
+}
+
+.slot__num {
+  font-size: var(--fs-100);
+  font-weight: 650;
+  color: var(--mv-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.slot__hole {
+  width: 100%;
+  min-height: calc(var(--piece) + var(--sp-3));
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  border: 2px dashed var(--mv-border);
+  border-radius: var(--r-md);
+  background-color: var(--mv-surface-2);
+  transition: border-color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
+}
+
+.slot.is-taken .slot__hole {
+  border-style: solid;
+  background-color: transparent;
+}
+
+.slot.is-near .slot__hole,
+.bucket.is-near .slot__hole {
+  border-color: var(--mv-accent);
+  transform: scale(1.04);
+}
+
+.slot.is-misplaced .slot__hole {
+  animation: shrug 320ms var(--ease);
+  border-color: var(--mv-warn);
+}
+
+/* Hidden while the slot row wraps, where "first"/"last" would point nowhere. */
+.sequence__ends {
+  display: none;
+  justify-content: space-between;
+  color: var(--mv-text-dim);
+  font-size: var(--fs-100);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sequence.is-complete .slot__hole {
+  border-color: var(--mv-success);
+}
+
 /* --- Choose / Reason ---------------------------------------------------- */
 
 .choice {

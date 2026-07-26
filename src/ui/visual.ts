@@ -11,7 +11,8 @@ export type ColourName = 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purpl
 export type VisualSize = 'sm' | 'md' | 'lg';
 
 export type Visual =
-  | { type: 'shape'; kind: ShapeKind; colour?: ColourName; size?: VisualSize }
+  /** `rotate` is degrees, for spatial-reasoning tasks. */
+  | { type: 'shape'; kind: ShapeKind; colour?: ColourName; size?: VisualSize; rotate?: number }
   /** A single text glyph, used for animals and everyday objects. */
   | { type: 'icon'; char: string; size?: VisualSize }
   /** Countable dots, for early number work. */
@@ -98,7 +99,9 @@ export function renderVisual(visual: Visual): HTMLElement {
     classes.push(`size-${visual.size ?? 'md'}`);
     if (visual.colour) classes.push(`ink-${visual.colour}`);
     wrap.className = classes.join(' ');
-    wrap.append(shapeSvg(visual.kind));
+    const art = shapeSvg(visual.kind);
+    if (visual.rotate) art.style.rotate = `${visual.rotate}deg`;
+    wrap.append(art);
     return wrap;
   }
 
