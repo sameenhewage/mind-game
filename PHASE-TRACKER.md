@@ -28,8 +28,8 @@ Authentication, durable progress persistence, PWA/offline infrastructure and clo
 | Phase | Name | Status | Prompt | Implementation commit | Verification | Notes |
 |---|---|---|---|---|---|---|
 | 0 | Foundation | ACCEPTED | `prompts/PHASE-00-foundation.md` | `1da1983` | PASS | Accepted baseline |
-| 1 | Navigation & Player Entry | READY | `prompts/PHASE-01-navigation.md` | — | — | First gameplay milestone phase |
-| 2 | Shape Bucket Interaction | QUEUED | `prompts/PHASE-02-shape-bucket.md` | — | — | First real interaction quality gate |
+| 1 | Navigation & Player Entry | COMPLETE | `prompts/PHASE-01-navigation.md` | `cd05944` | PASS | Age select, home, chamber shell, results; session flow verified 320/820/1440 |
+| 2 | Shape Bucket Interaction | IN_PROGRESS | `prompts/PHASE-02-shape-bucket.md` | — | — | First real interaction quality gate |
 | 3 | Brain Engine — Session Only | QUEUED | `prompts/PHASE-03-brain-engine.md` | — | — | Adaptive scoring/difficulty; no persistence |
 | 4 | Little Explorer Content | QUEUED | `prompts/PHASE-04-little-explorer.md` | — | — | Expand age 3–5 |
 | 5 | Age-Adaptive Challenge Sets | QUEUED | `prompts/PHASE-05-age-groups.md` | — | — | 6–8, 9–12, 13–17, 18+ |
@@ -41,8 +41,8 @@ Authentication, durable progress persistence, PWA/offline infrastructure and clo
 
 ## Current phase
 
-**Phase 1 — Navigation & Player Entry**  
-Status: `READY`
+**Phase 2 — Shape Bucket Interaction**  
+Status: `IN_PROGRESS`
 
 ## Last architect-accepted implementation baseline
 
