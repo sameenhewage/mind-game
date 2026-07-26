@@ -12,6 +12,7 @@
 
 import type { AttemptResult, KnowledgeDomain } from './puzzle';
 import type { AgeGroup } from './types';
+import { shuffle } from './util';
 
 export interface VaultKey {
   id: string;
@@ -51,6 +52,8 @@ export interface RunState {
   results: AttemptResult[];
   /** Domains already used, so a run spreads across subjects. */
   domains: KnowledgeDomain[];
+  /** The order this run tries to visit subjects in, shuffled so runs differ. */
+  domainOrder: KnowledgeDomain[];
   /** Ids already played in this run, so nothing repeats. */
   playedIds: string[];
   inFinal: boolean;
@@ -61,6 +64,16 @@ export function runShape(ageGroup: AgeGroup): RunShape {
   return SHAPES[ageGroup];
 }
 
+/** Subjects a run tries to cover. Shuffled per run so no two open the same way. */
+const DOMAINS: KnowledgeDomain[] = [
+  'maths',
+  'problem-solving',
+  'nature',
+  'language',
+  'history',
+  'core',
+];
+
 export function createRun(ageGroup: AgeGroup): RunState {
   return {
     ageGroup,
@@ -69,6 +82,7 @@ export function createRun(ageGroup: AgeGroup): RunState {
     keys: [],
     results: [],
     domains: [],
+    domainOrder: shuffle(DOMAINS),
     playedIds: [],
     inFinal: false,
     finalResult: null,
@@ -111,11 +125,6 @@ export function finalPrompt(task: FinalTask): string {
     case 'number-descending':
       return 'Place the keys by their numbers, largest first. The numbers are hidden now.';
   }
-}
-
-/** True once the player has cleared every chamber and the final challenge. */
-export function isRunComplete(run: RunState): boolean {
-  return run.finalResult !== null;
 }
 
 /**

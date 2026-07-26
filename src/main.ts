@@ -4,7 +4,7 @@ import { pickCard } from './content/catalog';
 import { finalVaultCard } from './content/final-vault';
 import { createBrain, type Brain } from './game/brain';
 import { readAgeGroup, writeAgeGroup } from './game/prefs';
-import type { AttemptResult, KnowledgeDomain, PuzzleCard } from './game/puzzle';
+import type { AttemptResult, PuzzleCard } from './game/puzzle';
 import { createRun, mintKey, runDepth, type RunState, type VaultKey } from './game/run';
 import { ageGroupInfo, type AgeGroup } from './game/types';
 import { renderAgeSelect } from './ui/age-select';
@@ -13,7 +13,7 @@ import { renderHome } from './ui/home';
 import { renderChamberClear, renderRunSummary } from './ui/results';
 import { createScreenHost } from './ui/screen';
 
-const root = document.querySelector<HTMLDivElement>('#app');
+const root = document.querySelector<HTMLElement>('#app');
 
 if (!root) {
   throw new Error('MIND VAULT: #app container is missing from index.html');
@@ -118,18 +118,8 @@ function showChamber(group: AgeGroup): void {
   });
 }
 
-/** Domains a run tries to visit, in order, so one run spans several subjects. */
-const DOMAIN_ROTATION: KnowledgeDomain[] = [
-  'maths',
-  'problem-solving',
-  'nature',
-  'language',
-  'history',
-  'core',
-];
-
 function pickNextChamberCard(group: AgeGroup, current: RunState, active: Brain): PuzzleCard {
-  const wanted = DOMAIN_ROTATION.find((domain) => !current.domains.includes(domain));
+  const wanted = current.domainOrder.find((domain) => !current.domains.includes(domain));
   const card = pickCard(group, active.difficulty, current.playedIds, wanted);
   current.playedIds = [...current.playedIds, card.id];
   current.domains = [...current.domains, card.domain];

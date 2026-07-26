@@ -89,7 +89,12 @@ export function createPickPlace({
   let buckets: { element: HTMLElement; id: string; box: Box }[] = [];
   let near: HTMLElement | null = null;
   let selected: HTMLElement | null = null;
-  let busy = false;
+  /**
+   * Pieces mid-animation. Locking per piece rather than globally matters: a
+   * global lock swallowed taps for the whole length of a return animation, which
+   * punished exactly the fast, impatient tapping children actually do.
+   */
+  const animating = new Set<HTMLElement>();
 
   const pieces = () => Array.from(root.querySelectorAll<HTMLElement>('[data-piece-id]'));
   const bucketEls = () => Array.from(root.querySelectorAll<HTMLElement>('[data-bucket-id]'));
@@ -131,41 +136,37 @@ export function createPickPlace({
     );
   }
 
-  function animate(
-    element: HTMLElement,
-    frames: Keyframe[],
-    ms: number,
-    done: () => void,
-  ): void {
-    const animation = element.animate(frames, {
-      duration: reduceMotion ? 1 : ms,
-      easing: EASE_OUT,
-      fill: 'forwards',
-    });
-    animation.addEventListener('finish', () => {
-      animation.cancel();
-      done();
-    });
+  /** Returns in flight, kept so a new attempt on the same piece can supersede it. */
+  const returning = new Map<HTMLElement, Animation>();
+
+  /** Abandons a piece's return animation so the player can act again at once. */
+  function stopReturn(element: HTMLElement): void {
+    const animation = returning.get(element);
+    if (!animation) return;
+    animation.cancel();
+    returning.delete(element);
+    element.style.transform = '';
+    element.classList.remove('is-returning', 'is-dragging');
   }
 
-  function returnHome(target: HTMLElement, from: string): void {
-    busy = true;
+  function glideHome(target: HTMLElement, from: string): void {
+    stopReturn(target);
     target.classList.add('is-returning');
-    animate(
-      target,
+    const animation = target.animate(
       [{ transform: from }, { transform: 'translate3d(0, 0, 0) scale(1)' }],
-      RETURN_MS,
-      () => {
-        target.style.transform = '';
-        target.classList.remove('is-returning', 'is-dragging');
-        busy = false;
-      },
+      { duration: reduceMotion ? 1 : RETURN_MS, easing: EASE_OUT, fill: 'forwards' },
     );
+    returning.set(target, animation);
+    animation.addEventListener('finish', () => {
+      animation.cancel();
+      returning.delete(target);
+      target.style.transform = '';
+      target.classList.remove('is-returning', 'is-dragging');
+    });
   }
 
   /** Correct drop: glide into the bucket mouth, then hand control back. */
   function snapInto(target: HTMLElement, from: string, box: Box, event: PlaceEvent): void {
-    busy = true;
     const to = boxOf(target.querySelector('[data-bucket-mouth]') ?? target);
     const dx = to.cx - box.cx;
     const dy = to.cy - box.cy;
@@ -173,17 +174,20 @@ export function createPickPlace({
       snap === 'settle'
         ? { transform: `translate3d(${dx}px, ${dy}px, 0) scale(1)`, opacity: '1' }
         : { transform: `translate3d(${dx}px, ${dy}px, 0) scale(0.34)`, opacity: '0.15' };
-    animate(
-      target,
-      [{ transform: from, opacity: '1' }, landed],
-      SNAP_MS,
-      () => {
-        target.style.transform = '';
-        target.classList.remove('is-dragging');
-        busy = false;
-        onPlace(event);
-      },
-    );
+
+    animating.add(target);
+    const animation = target.animate([{ transform: from, opacity: '1' }, landed], {
+      duration: reduceMotion ? 1 : SNAP_MS,
+      easing: EASE_OUT,
+      fill: 'forwards',
+    });
+    animation.addEventListener('finish', () => {
+      animation.cancel();
+      animating.delete(target);
+      target.style.transform = '';
+      target.classList.remove('is-dragging');
+      onPlace(event);
+    });
   }
 
   function resolve(pieceEl: HTMLElement, bucket: HTMLElement, from: string, box: Box): void {
@@ -196,6 +200,7 @@ export function createPickPlace({
     setSelected(null);
 
     if (correct) {
+      // The piece leaves play, so it may finish travelling before being reported.
       snapInto(pieceEl, from, box, event);
       return;
     }
@@ -205,25 +210,19 @@ export function createPickPlace({
     pieceEl.classList.add('is-wrong');
     window.setTimeout(() => pieceEl.classList.remove('is-wrong'), 420);
 
-    busy = true;
-    pieceEl.classList.add('is-returning');
-    animate(
-      pieceEl,
-      [{ transform: from }, { transform: 'translate3d(0, 0, 0) scale(1)' }],
-      RETURN_MS,
-      () => {
-        pieceEl.style.transform = '';
-        pieceEl.classList.remove('is-returning', 'is-dragging');
-        busy = false;
-        onPlace(event);
-      },
-    );
+    // A wrong attempt is reported straight away, so the outcome never depends on
+    // an animation finishing and the return can be interrupted freely.
+    onPlace(event);
+    glideHome(pieceEl, from);
   }
 
   function onPointerDown(event: PointerEvent): void {
-    if (busy || pointerId !== null || event.button !== 0) return;
+    if (pointerId !== null || event.button !== 0) return;
     const target = (event.target as Element | null)?.closest<HTMLElement>('[data-piece-id]');
     if (!target || target.dataset.done === 'true' || !root.contains(target)) return;
+    if (animating.has(target)) return;
+    // Latest input wins: a piece still drifting home is grabbed where it is.
+    stopReturn(target);
 
     pointerId = event.pointerId;
     piece = target;
@@ -277,7 +276,7 @@ export function createPickPlace({
     setNear(null);
 
     if (!hit) {
-      returnHome(activePiece, from);
+      glideHome(activePiece, from);
       return;
     }
     resolve(activePiece, hit.element, from, box);
@@ -290,7 +289,7 @@ export function createPickPlace({
     piece = null;
     pieceBox = null;
     if (moved) {
-      returnHome(activePiece, activePiece.style.transform || 'translate3d(0,0,0) scale(1.08)');
+      glideHome(activePiece, activePiece.style.transform || 'translate3d(0,0,0) scale(1.08)');
     } else {
       activePiece.classList.remove('is-dragging');
     }
@@ -298,7 +297,6 @@ export function createPickPlace({
 
   /** Placing a selected piece by activating a bucket (tap, click or keyboard). */
   function onClick(event: MouseEvent): void {
-    if (busy) return;
     const from = event.target as Element | null;
 
     // `detail === 0` means the button was activated by keyboard, which produces no
@@ -311,7 +309,8 @@ export function createPickPlace({
       }
     }
 
-    if (!selected) return;
+    if (!selected || animating.has(selected)) return;
+    stopReturn(selected);
     const bucket = from?.closest<HTMLElement>('[data-bucket-id]');
     if (!bucket) return;
     const activePiece = selected;
@@ -339,6 +338,8 @@ export function createPickPlace({
       root.removeEventListener('pointercancel', onPointerCancel);
       root.removeEventListener('click', onClick);
       root.removeEventListener('keydown', onKeyDown);
+      returning.forEach((animation) => animation.cancel());
+      returning.clear();
       pieces().forEach((element) => {
         element.style.transform = '';
         element.classList.remove('is-dragging', 'is-returning', 'is-selected', 'is-wrong');

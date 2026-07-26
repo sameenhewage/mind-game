@@ -2,7 +2,7 @@ import { SKILL_LABEL, type SkillId, type Skills } from '../game/brain';
 import { el } from './dom';
 
 /** The four skills shown on the summary surfaces; all seven are still tracked. */
-export const HEADLINE_SKILLS: SkillId[] = ['memory', 'logic', 'attention', 'problemSolving'];
+const HEADLINE_SKILLS: SkillId[] = ['memory', 'logic', 'attention', 'problemSolving'];
 
 export interface SkillPanelOptions {
   skills: Readonly<Skills>;

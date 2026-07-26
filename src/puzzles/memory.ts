@@ -117,18 +117,20 @@ export function memoryPuzzle(spec: MemorySpec): PuzzleMount {
       );
     };
 
-    // Study step.
+    // Study step. With reduced motion the draining bar would empty instantly and
+    // misreport the time left, so it is replaced by plain words.
     ctx.setInstruction(spec.studyInstruction);
     ctx.setProgress('Look carefully');
-    const bar = el('span', { class: 'lookbar', 'aria-hidden': 'true' }, [
-      el('span', {
-        class: 'lookbar__fill',
-        style: `animation-duration: ${ctx.reduceMotion ? 0 : spec.showMs}ms`,
-      }),
-    ]);
-    board.replaceChildren(itemRow(spec.items), bar);
+    const meter = ctx.reduceMotion
+      ? el('p', { class: 'feedback', text: 'These will be hidden in a moment.' })
+      : el('span', { class: 'lookbar', 'aria-hidden': 'true' }, [
+          el('span', { class: 'lookbar__fill', style: `animation-duration: ${spec.showMs}ms` }),
+        ]);
+    board.replaceChildren(itemRow(spec.items), meter);
 
-    timer = window.setTimeout(recall, ctx.reduceMotion ? 1200 : spec.showMs);
+    // The study window itself is never shortened: reduced motion is about
+    // animation, not about giving someone less time to look.
+    timer = window.setTimeout(recall, spec.showMs);
 
     return () => {
       finished = true;

@@ -37,7 +37,7 @@ function svg(viewBox = '0 0 64 64'): SVGSVGElement {
   return node;
 }
 
-export function shapeSvg(kind: ShapeKind): SVGSVGElement {
+function shapeSvg(kind: ShapeKind): SVGSVGElement {
   const root = svg();
   const path = document.createElementNS(SVG_NS, 'path');
   path.setAttribute('d', SHAPE_PATH[kind]);

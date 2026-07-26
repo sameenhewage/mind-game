@@ -92,11 +92,17 @@ export function sortPuzzle(spec: SortSpec): PuzzleMount {
           'data-bucket-id': bucket.id,
           'aria-label': `Put into ${bucket.label}`,
         },
+        // A bucket with no picture carries its name inside the mouth, where the
+        // drop happens. Repeating it underneath would just say everything twice.
         [
           el('span', { class: 'bucket__mouth', 'data-bucket-mouth': true }, [
-            bucket.visual ? renderVisual(bucket.visual) : el('span', { class: 'bucket__hint', text: bucket.label }),
+            bucket.visual
+              ? renderVisual(bucket.visual)
+              : el('span', { class: 'bucket__hint', text: bucket.label }),
           ]),
-          spec.showBucketLabels !== false && el('span', { class: 'bucket__label', text: bucket.label }),
+          bucket.visual !== undefined &&
+            spec.showBucketLabels !== false &&
+            el('span', { class: 'bucket__label', text: bucket.label }),
           el('span', { class: 'bucket__slots', 'data-slots': true }),
         ],
       );

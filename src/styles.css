@@ -66,6 +66,9 @@ button:disabled {
   --mv-accent: #4fd1c5;
   --mv-accent-2: #8b7cf6;
   --mv-on-accent: #04121a;
+  /* Accent used as small text on a surface. Light themes need a darker ink than
+     their fill colour to stay readable. */
+  --mv-accent-ink: var(--mv-accent);
   --mv-success: #43c98b;
   --mv-warn: #f2b544;
   --mv-shadow: none;
@@ -136,10 +139,11 @@ button:disabled {
   --mv-border: #cbe1f2;
   --mv-text: #16202b;
   --mv-text-dim: #5a7185;
-  --mv-accent: #1683c4;
+  --mv-accent: #0f6da6;
   --mv-accent-2: #ef7a1a;
+  --mv-accent-ink: #0d5c8c;
   --mv-on-accent: #ffffff;
-  --mv-success: #1c9d63;
+  --mv-success: #16794e;
   --mv-shadow: 0 1px 2px #0f2c4410, 0 8px 24px #0f2c4414;
   --mv-lift: 0 0 0 1px var(--mv-border), var(--mv-shadow);
   --touch-min: 56px;
@@ -157,8 +161,10 @@ button:disabled {
   --mv-text-dim: #7a6a52;
   --mv-accent: #e0700d;
   --mv-accent-2: #2f95e0;
-  --mv-on-accent: #ffffff;
-  --mv-success: #1c9d63;
+  --mv-accent-ink: #8f4300;
+  /* Dark ink on the bright fill keeps the cheerful colour and stays readable. */
+  --mv-on-accent: #3d1c00;
+  --mv-success: #16794e;
   --mv-shadow: 0 1px 2px #4a300c14, 0 10px 26px #4a300c1a;
   --mv-lift: 0 0 0 1px var(--mv-border), var(--mv-shadow);
   --fs-300: clamp(1.0625rem, 1rem + 0.5vw, 1.25rem);
@@ -280,7 +286,7 @@ p {
   border-radius: var(--r-pill);
   background-color: var(--mv-surface-2);
   padding: var(--sp-1) var(--sp-3);
-  color: var(--mv-accent);
+  color: var(--mv-accent-ink);
   font-size: var(--fs-100);
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -361,7 +367,6 @@ p {
 .btn__hint {
   font-size: var(--fs-100);
   font-weight: 500;
-  opacity: 0.72;
   letter-spacing: 0;
   text-transform: none;
 }
@@ -404,12 +409,13 @@ p {
 }
 
 .chip__action {
-  min-height: 36px;
+  /* Secondary, but still a real touch target. */
+  min-height: 44px;
   padding-inline: var(--sp-3);
   border-radius: var(--r-pill);
   background-color: var(--mv-surface-2);
   box-shadow: 0 0 0 1px var(--mv-border);
-  color: var(--mv-accent);
+  color: var(--mv-accent-ink);
   font-size: var(--fs-100);
   font-weight: 600;
   transition: transform var(--dur-fast) var(--ease);
@@ -513,7 +519,7 @@ p {
 }
 
 .iconbtn {
-  min-height: 40px;
+  min-height: 44px;
   padding-inline: var(--sp-3);
   border-radius: var(--r-pill);
   background-color: var(--mv-surface-2);
@@ -666,9 +672,13 @@ p {
   opacity: 0.55;
 }
 
+/* The bucket's own name, sitting in the drop area, so it reads as the target. */
 .bucket__hint {
-  color: var(--mv-text-dim);
-  font-size: var(--fs-100);
+  color: var(--mv-text);
+  font-size: var(--fs-200);
+  font-weight: 600;
+  text-align: center;
+  text-wrap: balance;
 }
 
 .bucket__label {
@@ -1169,7 +1179,7 @@ p {
 .panel__level {
   font-size: var(--fs-100);
   font-weight: 650;
-  color: var(--mv-accent);
+  color: var(--mv-accent-ink);
 }
 
 /* Two columns at every width keeps the four headline skills balanced. */
@@ -1337,7 +1347,8 @@ p {
 
 .vis--strong {
   font-size: var(--fs-500);
-  color: var(--mv-accent);
+  /* Numbers are read, not decoration, so they use the readable ink. */
+  color: var(--mv-accent-ink);
 }
 
 /* 7. Motion -------------------------------------------------------------- */

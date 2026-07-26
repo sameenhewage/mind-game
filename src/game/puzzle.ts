@@ -11,15 +11,6 @@ export type KnowledgeDomain =
   | 'language'
   | 'history';
 
-export const DOMAIN_LABEL: Record<KnowledgeDomain, string> = {
-  core: 'Focus',
-  maths: 'Numbers',
-  nature: 'Nature',
-  'problem-solving': 'Problem Solving',
-  language: 'Words',
-  history: 'History',
-};
-
 /** One playable puzzle, already built for a specific difficulty. */
 export interface PuzzleCard {
   id: string;

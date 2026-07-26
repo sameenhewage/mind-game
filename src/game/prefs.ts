@@ -25,11 +25,3 @@ export function writeAgeGroup(ageGroup: AgeGroup): void {
     // Preference is optional; the session continues with the in-memory choice.
   }
 }
-
-export function clearAgeGroup(): void {
-  try {
-    localStorage.removeItem(AGE_GROUP_KEY);
-  } catch {
-    // Nothing to recover from.
-  }
-}
