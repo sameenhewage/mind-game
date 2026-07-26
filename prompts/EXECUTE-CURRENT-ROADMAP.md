@@ -1,10 +1,8 @@
-# MIND VAULT — Execute Current Roadmap
+# MIND VAULT — Execute Current Gameplay Milestone
 
 Status: **AUTHORIZED**
 
-This is the architect authorization to execute the currently defined implementation roadmap continuously instead of stopping for approval after every phase.
-
-This file supersedes only the old per-phase gate wording that says to STOP and wait for architect acceptance before the next phase. It does **not** supersede any phase scope, constraints, performance rules, privacy rules, or verification requirements.
+This is the architect authorization to build the playable game first. Authentication, durable progress persistence, offline/PWA infrastructure and cloud sync are intentionally deferred until the completed game milestone is reviewed.
 
 ## Execution order
 
@@ -12,124 +10,140 @@ Execute sequentially:
 
 1. Phase 1 — Navigation & Player Entry
 2. Phase 2 — Shape Bucket Interaction
-3. Phase 3 — Brain Engine & Local Progress
+3. Phase 3 — Brain Engine (session only)
 4. Phase 4 — Little Explorer Content
 5. Phase 5 — Age-Adaptive Challenge Sets
 6. Phase 6 — Knowledge Domains
-7. Phase 7 — Offline Web App / PWA
-8. Phase 8 — Vault Run
-9. Phase 9 — Optional Cloud Sync & Cross-Device Progress
-10. Phase 10 — Polish & Release Readiness
+7. Phase 8 — Vault Run
+8. Phase 10 — Gameplay Polish
+
+Do NOT execute Phase 7 or Phase 9 in this milestone.
 
 Never execute phases in parallel.
 
+## Current product goal
+
+Finish a genuinely playable, interesting, lightweight MIND VAULT game that can be evaluated on gameplay quality before architecture is added for accounts/progress.
+
+The milestone must prove:
+- smooth core interaction;
+- age-appropriate experiences from 3–5 through 18+;
+- adaptive in-session difficulty/brain calculation;
+- varied cognitive mechanics;
+- maths, nature/science, problem solving, language/literature and history used as puzzle material;
+- a replayable Vault Run;
+- strong responsive/mobile/desktop UX;
+- low resource usage.
+
 ## Per-phase protocol
 
-For every phase:
-
+For every executable phase:
 1. Read `AGENTS.md`, `DECISIONS.md`, `PHASE-TRACKER.md`, this authorization, and the exact phase prompt.
 2. Mark only that phase `IN_PROGRESS`.
 3. Implement only that phase.
-4. Run all verification required by that phase plus the repository-wide build/runtime checks.
-5. Do not continue on a failing build or a known regression.
+4. Run all verification required by that phase plus repository-wide build/runtime checks.
+5. Do not continue on a failing build or known gameplay regression.
 6. Create one focused implementation commit.
-7. Update the tracker with commit SHA, verification result, bundle/runtime notes where relevant, and status `COMPLETE`.
-8. Immediately continue to the next phase if the current phase verification is genuinely PASS.
+7. Update the tracker with commit SHA, verification result and status `COMPLETE`.
+8. Immediately continue to the next executable gameplay phase when verification is genuinely PASS.
 
-`COMPLETE` in batch mode means implemented and verified by the implementation agent. It does **not** mean architect-accepted. Final architect review happens after the current roadmap batch completes.
+`COMPLETE` means implemented and verified by the implementation agent. It does not mean architect-accepted.
 
 Do not mark phases `ACCEPTED` yourself.
 
-## Blocker policy
+## Gameplay-first storage rule
 
-Do not stop for ordinary implementation choices that are already constrained by the phase prompt. Make the smallest reasonable choice and document it.
+During this milestone:
+- `localStorage` may hold only tiny bootstrap preferences such as selected age group;
+- brain scores/difficulty/run state are session/in-memory gameplay state;
+- losing session progress on a hard reload is acceptable for this milestone;
+- do not introduce IndexedDB;
+- do not introduce a database/backend;
+- do not introduce authentication/cloud sync.
 
-If a real external blocker exists (credentials, provider console setup, unavailable external service, legal/privacy activation gate, etc.):
+The architect will design the durable progress model only after reviewing the completed game.
 
-- mark the affected phase `BLOCKED`;
-- record exactly what is complete and what cannot be verified;
-- do not claim PASS for the blocked portion;
-- continue with later phases only when they are technically independent of the blocked item;
-- preserve local/offline gameplay as fully functional.
+## Explicitly deferred phases
+
+### Phase 7 — Offline Web App / PWA
+DEFERRED. Do not add a service worker, Cache Storage strategy or install/offline architecture yet.
+
+### Phase 9 — Authentication / Cloud Sync
+DEFERRED. Do not add Supabase, Google/Apple sign-in, backend/database, parent accounts or cross-device sync yet.
+
+Any previous batch authorization for these phases is superseded by this file.
 
 ## Simplicity rule
 
-Do not use batch authorization as permission to over-engineer.
-
-Keep the established constraints:
-
+Keep:
 - Vite + Vanilla TypeScript
 - semantic HTML/CSS/SVG/browser APIs
 - no front-end framework
 - no game engine
-- no unnecessary state library
+- no state framework
 - no animation/physics library
-- runtime dependencies remain minimal
-- cognitive difficulty grows through logic/content, not graphics/resource load
-- one shared responsive codebase for phone/tablet/laptop/desktop
+- minimal runtime dependencies
+- one responsive codebase
 
-## Storage progression
+Difficulty increases through thinking, rules and content—not rendering load.
 
-- Phase 1: `localStorage` only for tiny bootstrap preference such as age group.
-- Phase 3 onward: native IndexedDB is the local source of truth for real game progress.
-- Phase 7: service worker/Cache Storage stores app shell and offline game assets/content; do not mix this with player progress.
-- Phase 9: cloud remains optional and local-first.
+## Brain engine rule
 
-## Phase 9 current architect direction
+The game still needs real adaptive behavior now.
 
-Keep Phase 9 small.
+Use a small explainable in-session model:
+- memory
+- attention
+- logic
+- problem solving
+- pattern recognition
+- planning
+- knowledge
 
-Target architecture:
+Difficulty remains approximately 1–5 and adapts gradually from recent attempts.
 
-- one optional cloud progress system;
-- one progress datastore, not separate Apple/Google/web databases;
-- Google and Apple are identity providers, not separate game-save architectures;
-- local IndexedDB remains the immediate save target;
-- sync happens only when online and account-connected;
-- guest/offline play must remain fully usable.
+No ML, AI scoring, IQ claims or medical claims.
 
-For the first cloud implementation, use **Supabase Auth + one Supabase Postgres project** unless a concrete repository/runtime incompatibility is found during implementation. Supabase currently supports Google and Apple sign-in for web applications and integrates Auth with its Postgres/RLS model.
+## Knowledge rule
 
-Do not create microservices or a custom authentication server.
+MIND VAULT must not become a trivia/school worksheet app.
 
-### Children/privacy gate
+Use maths, nature/science, history and language/literature inside cognitive interactions such as:
+- sort/classify
+- match
+- sequence
+- memory
+- deduction
+- cause/effect
+- planning
+- choose/reason
 
-MIND VAULT includes an experience for ages 3–5 and therefore child-directed/mixed-audience privacy requirements are material.
+Keep content useful but not academically deep.
 
-Do not directly collect unnecessary child identity/contact data.
+## Vault Run
 
-For under-13 gameplay:
+Build a short replayable run from proven mechanics. It must be skill based. Do not implement any artificial 4% random win gate.
 
-- local/offline play must require no account;
-- do not ask the child for email, social login, full name, school, address, phone, or exact date of birth;
-- any future cloud account for a child profile must be parent/guardian-oriented;
-- do not claim production child-cloud-sync compliance merely because the technical OAuth flow works;
-- if verifiable parental-consent/privacy-policy requirements are not implemented and validated, keep child cloud sync disabled and mark that activation item BLOCKED rather than weakening the privacy rule.
+The ~4% goal remains a future balancing target after real play data exists.
 
-This does not block adult/eligible-user technical cloud-sync work if it can be safely isolated.
+## Final gameplay milestone report
 
-## Phase 10
+After Phase 10, return one consolidated report containing:
+- each executed phase and commit SHA;
+- verification result per phase;
+- final HEAD / remote sync / working-tree state;
+- production build and bundle size;
+- runtime dependency count;
+- real browser/mobile/touch/desktop evidence;
+- puzzle mechanics implemented;
+- age-group behavior;
+- in-session brain/difficulty behavior;
+- knowledge-domain coverage;
+- Vault Run behavior;
+- known bugs/debt;
+- anything that still feels weak or unfun;
+- recommended NEXT ROADMAP.
 
-Phase 10 may proceed after Phase 8 even if an external-only portion of Phase 9 is blocked, as long as Phase 10 does not fake cross-device evidence. Verify cross-device sync only if Phase 9 is genuinely working.
+Do not implement authentication, durable progress, PWA/offline or cloud sync as part of the recommended next roadmap until the architect reviews the gameplay result.
 
-## Final batch report
-
-After the final executable phase, return one consolidated report with:
-
-- phase-by-phase status;
-- implementation commit SHA for each phase;
-- verification result for each phase;
-- files/features introduced;
-- final production bundle size;
-- runtime dependency list/count;
-- mobile/touch verification;
-- desktop verification;
-- IndexedDB persistence verification;
-- offline/PWA verification;
-- Vault Run verification;
-- cloud-sync verification or exact external blocker;
-- privacy/child-cloud activation status;
-- known issues/debt;
-- suggested next product plan.
-
-Then STOP for architect review.
+Then STOP.
