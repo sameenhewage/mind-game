@@ -1,0 +1,18 @@
+{
+  "name": "mind-vault",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "MIND VAULT - a lightweight, age-adaptive brain-training game for the web.",
+  "scripts": {
+    "dev": "vite",
+    "dev:lan": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2",
+    "vite": "8.1.5"
+  }
+}
